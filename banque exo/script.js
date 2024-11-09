@@ -1,4 +1,7 @@
 const INTERESTS = 0.03;
+const date = new Date();
+const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+const time = date.toLocaleTimeString('fr-FR');
 let solde = 1000;
 let depot = 200;
 let retrait = 150;
@@ -29,9 +32,10 @@ function retraitfunction(retrait) {
     }
 }
 function interestsfunction(INTERESTS) {
-    solde += solde * INTERESTS;
+    solde += parseFloat((solde * INTERESTS).toFixed(2));
     historiqueOperations.push("Intérêts annuels de 3% ajoutés");
     console.log("Solde après ajout des intérêts : " + solde);
+    return solde;
 }
 function depot2function(nouveaudepot) {
     solde += nouveaudepot;
@@ -49,6 +53,8 @@ function retrait2function(nouveauretrait) {
 }
 function historiqueOperationsfunction() {
     for (let i = 0; i < historiqueOperations.length; i++) {
+        console.log("Date : " + date.toLocaleDateString('fr-FR', options));
+        console.log("Heure : " + time);
         console.log(historiqueOperations[i]);
     }
 }
