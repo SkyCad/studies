@@ -18,17 +18,27 @@ console.log("Historique des opérations :");
 historiqueOperationsfunction(historiqueOperations);
 
 function depotfunction(depot) {
+    if (depot < 0) {
+        console.log("Impossible de déposer un montant négatif");
+        return;
+    } else{
     solde += depot;
     historiqueOperations.push("Dépôt de " + depot + "€");
     console.log("Solde après dépôt : " + solde);
+    }
 }
 function retraitfunction(retrait) {
-    if (solde >= retrait) {
-        solde -= retrait;
-        historiqueOperations.push("Retrait de " + retrait + "€");
-        console.log("Solde après retrait : " + solde);
+    if (retrait < 0) {
+        console.log("Impossible de retirer un montant négatif");
+        return;
     } else {
-        console.log("Solde insuffisant pour effectuer le retrait");
+        if (solde >= retrait) {
+            solde -= retrait;
+            historiqueOperations.push("Retrait de " + retrait + "€");
+            console.log("Solde après retrait : " + solde);
+        } else {
+            console.log("Solde insuffisant pour effectuer le retrait");
+        }
     }
 }
 function interestsfunction(INTERESTS) {
