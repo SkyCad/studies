@@ -1,3 +1,4 @@
+import BankAccount from './BankAccount.js';
 let account = new BankAccount();
 account.depot(200);
 account.retrait(150);

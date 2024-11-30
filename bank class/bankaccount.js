@@ -1,5 +1,5 @@
 // creation de la classe BankAccount
-class BankAccount {
+export default class BankAccount {
 
     constructor(initialBalance = 1000) {
         this.INTERESTS = 0.03;
