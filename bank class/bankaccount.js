@@ -7,7 +7,6 @@ class BankAccount {
         this.time = this.date.toLocaleTimeString('fr-FR');
         this.solde = initialBalance;
         this.historiqueOperations = [];
-        console.log("Solde initial : " + this.solde);
     }
 
     depot(depot) {
@@ -50,11 +49,3 @@ class BankAccount {
         }
     }
 }
-let account = new BankAccount();
-account.depot(200);
-account.retrait(150);
-account.addInterests();
-account.depot(500);
-account.retrait(800);
-console.log("Historique des opérations :");
-account.historiqueOperationsfunction();
