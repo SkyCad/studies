@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Waiting Line</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Waiting line</h1>
+    <div class="form_div">
+        <form id="clientForm" class="clientform">
+            <label for="text" class="form_title">Nom</label> 
+            <input type="text" id="nameInput" class="form_input" placeholder="Nom" required> <br>
+            <label for="text" class="form_title">Prénom</label> 
+            <input type="text" id="firstnameInput" class="form_input" placeholder="Prénom" required> <br>
+            <label for="text" class="form_title">Service</label> 
+            <select name="Service" id="serviceInput" class="form_input"> 
+                <option value="Envoi de courrier">Envoi de courrier</option>
+                <option value="Retrait de colis">Retrait de colis</option>
+                <option value="Paiement de facture">Paiement de facture</option>
+            </select> <br>
+            <label for="text" class="form_title">Temps estimé</label>
+            <select name="Estimatedtime" id="estimatedTimeInput" class="form_input">
+                <option value="12 hours">Dans les 12 heures</option>
+                <option value="24 hours">Dans les 24 heures</option>
+                <option value="3 days">Dans les 3 jours</option>
+                <option value="7 days">Dans la semaine</option>
+            </select> <br>
+            <label for="text" class="form_title">Priority</label>
+            <select name="Priority" id="priorityInput" class="form_input">
+                <option value="Prioritaire">Prioritaire(age,handicap)</option>
+                <option value="Non Prioritaire">Non Prioritaire</option>
+            </select> <br>
+            <button type="submit" class="form_submit">Confirmer</button>
+        </form>
+
+        <div class="waitingline">
+            <h2>File d'attente</h2>
+            <ul id="clientsList"></ul>
+            <button id="serveClientButton">Serve Next Client</button>
+            </ul>
+    </div>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>
