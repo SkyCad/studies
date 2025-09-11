@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	const nameSpan = document.getElementById('character-name');
 	const classSpan = document.getElementById('character-class');
 	const raceSpan = document.getElementById('character-race');
-	const createBtn = document.getElementById('create-character');
 	const helpBtn = document.getElementById('help-button');
 	const hpLimit = document.getElementById('hp-limit');
 	const powerLimit = document.getElementById('power-limit');
@@ -41,33 +40,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Retourne les limites de stats selon la classe et la race
 	function getLimits(charClass, race) {
-		let limits = { endurance: 10, power: 10, magicDefense: 10, magicPower: 10 };
+		// All classes have at least 60 endurance, then more for some
+		let limits = { endurance: 60, power: 20, magicDefense: 10, magicPower: 10 };
 		if (charClass === 'warrior') {
-			limits.endurance = 20;
-			limits.power = 18;
-			limits.magicDefense = 8;
-			limits.magicPower = 5;
-		} else if (charClass === 'wizard') {
-			limits.endurance = 8;
-			limits.power = 6;
-			limits.magicDefense = 16;
-			limits.magicPower = 20;
+			limits = { endurance: 80, power: 35, magicDefense: 10, magicPower: 5 };
 		} else if (charClass === 'thief') {
-			limits.endurance = 12;
-			limits.power = 12;
-			limits.magicDefense = 10;
-			limits.magicPower = 8;
+			limits = { endurance: 65, power: 25, magicDefense: 20, magicPower: 5 };
+		} else if (charClass === 'wizard') {
+			limits = { endurance: 60, power: 8, magicDefense: 25, magicPower: 35 };
 		}
-		// Modificateurs de race
+		// Race modifiers (do not affect endurance)
 		if (race === 'dwarf') {
-			limits.endurance += 4;
-			limits.power += 2;
-			limits.magicPower -= 2;
+			limits.power += 10;
+			limits.endurance += 15;
 		} else if (race === 'elve') {
-			limits.endurance -= 2;
-			limits.power -= 2;
-			limits.magicPower += 4;
+			limits.magicPower += 15;
+			limits.magicDefense += 10;
 		}
+		// Clamp values to be >= 0
+		Object.keys(limits).forEach(k => { if (limits[k] < 0) limits[k] = 0; });
 		return limits;
 	}
 
@@ -212,6 +203,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
+		// Check if the sum of the 3 stats exceeds 100
+		const totalStats = endurance + power + magicDefense + magicPower;
+		if (totalStats > 100) {
+			alert('Vous ne pouvez pas répartir plus de 100 points de stats au total.');
+			return;
+		}
+
 		const character = new Character(name, charClass, race, endurance, power, magicDefense, magicPower);
 		characters.push(character);
 		// Save to localStorage after each change
@@ -224,9 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		classSpan.textContent = charClass;
 		raceSpan.textContent = race;
 
-	results.style.display = 'block';
-	// Scroll to results
-	results.scrollIntoView({ behavior: 'smooth' });
+		results.style.display = 'block';
+		// Scroll to results
+		results.scrollIntoView({ behavior: 'smooth' });
 
 		// Optionally reset the form
 		form.reset();
