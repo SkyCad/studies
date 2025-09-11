@@ -151,8 +151,9 @@ input:focus, select:focus {
 .btn:hover {
   background: linear-gradient(90deg, #f1d325 0%, #4f8cff 100%);
   color: #23272f;
-  transform: scale(1.07) rotate(-2deg);
+  transform: scale(1.1) rotate(-3deg) !important;
   box-shadow: 0 4px 24px #f1d32588;
+  transition: transform 0.7s cubic-bezier(.68,-0.55,.27,1.55), box-shadow 0.2s, background 0.3s, color 0.3s !important;
 }
 
 /* Animation pour les champs de formulaire au focus */
