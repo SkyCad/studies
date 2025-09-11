@@ -1,4 +1,4 @@
-// Load characters from localStorage or start with empty array
+// Récupère les personnages sauvegardés depuis le localStorage
 let characters = [];
 const saved = localStorage.getItem('characters');
 if (saved) {
@@ -36,14 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	const magicPowerLimit = document.getElementById('magic-power-limit');
 	const cleanBtn = document.getElementById('clean-chara');
 
-	// Show cleanBtn only if there is at least one character in localStorage
 	if (characters.length > 0) {
 		cleanBtn.style.display = 'block';
 	} else {
 		cleanBtn.style.display = 'none';
 	}
 
-	// --- Utility functions ---
+	// --- Utility fonctions ---
 
 	// Retourne les limites de stats selon la classe et la race
 	function getLimits(charClass, race) {
@@ -153,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return characters.some(char => char.name === name);
     }
 
-	// --- Event listeners ---
+	// --- Event listeners et form ---
 
 	form.elements['class'].addEventListener('change', () => {
 		const charClass = form.elements['class'].value;
@@ -197,10 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Form submission
 	form.addEventListener('submit', (e) => {
 		e.preventDefault();
-		console.log('Trying to create a character...');
+		console.log('Creation de personnage');
 		if (characters.length >= 2) {
-			alert('You can only create 2 characters max.');
-			console.warn('Character limit reached.');
+			alert('Vous ne pouvez créer que 2 personnages au maximum.');
+			console.warn('limite de personnages atteint');
 			return;
 		}
 		const name = form.elements['name'].value.trim();
@@ -212,8 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		const magicPower = parseInt(form.elements['magic-power'].value, 10) || 0;
 
 		if (!name || !charClass || !race) {
-			alert('Please fill all required fields.');
-			console.error('Missing required fields.');
+			alert('Veuillez remplir tous les champs requis.');
+			console.error('Champs requis manquants.');
 			return;
 		}
 
@@ -234,8 +233,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Save to localStorage after each change
 	localStorage.setItem('characters', JSON.stringify(characters));
 	cleanBtn.style.display = 'block';
-		console.log('Character created:', character);
-		console.log('Current number of characters:', characters.length);
+		console.log('Personnage créé :', character);
+		console.log('Nombre actuel de personnages :', characters.length);
 
 		// Show result
 		nameSpan.textContent = name;
