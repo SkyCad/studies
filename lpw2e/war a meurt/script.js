@@ -34,7 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	const powerLimit = document.getElementById('power-limit');
 	const magicDefenseLimit = document.getElementById('magic-defense-limit');
 	const magicPowerLimit = document.getElementById('magic-power-limit');
-    const cleanBtn = document.getElementById('clean-chara');
+	const cleanBtn = document.getElementById('clean-chara');
+
+	// Show cleanBtn only if there is at least one character in localStorage
+	if (characters.length > 0) {
+		cleanBtn.style.display = 'block';
+	} else {
+		cleanBtn.style.display = 'none';
+	}
 
 	// --- Utility functions ---
 
@@ -141,6 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		tipRace.style.opacity = 1;
 	}
 
+    // Vérifie si le nom existe déjà
+    function nameExists(name) {
+        return characters.some(char => char.name === name);
+    }
+
 	// --- Event listeners ---
 
 	form.elements['class'].addEventListener('change', () => {
@@ -173,14 +185,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		showAdvice(classAdvice, raceAdvice);
 	});
     
-    cleanBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (confirm('Cette action supprimera tous les personnages créés. Continuer ?')) {
-            characters = [];
-            localStorage.removeItem('characters');
+	cleanBtn.addEventListener('click', (e) => {
+		e.preventDefault();
+		if (confirm('Cette action supprimera tous les personnages créés. Continuer ?')) {
+			characters = [];
+			localStorage.removeItem('characters');
+			cleanBtn.style.display = 'none';
 		}
 	});
 
+    // Form submission
 	form.addEventListener('submit', (e) => {
 		e.preventDefault();
 		console.log('Trying to create a character...');
@@ -203,6 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
+        if (nameExists(name)) {
+            alert('Ce nom de personnage existe déjà.');
+        return;
+        }
+
 		// Check if the sum of the 3 stats exceeds 100
 		const totalStats = endurance + power + magicDefense + magicPower;
 		if (totalStats > 100) {
@@ -212,8 +231,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const character = new Character(name, charClass, race, endurance, power, magicDefense, magicPower);
 		characters.push(character);
-		// Save to localStorage after each change
-		localStorage.setItem('characters', JSON.stringify(characters));
+	// Save to localStorage after each change
+	localStorage.setItem('characters', JSON.stringify(characters));
+	cleanBtn.style.display = 'block';
 		console.log('Character created:', character);
 		console.log('Current number of characters:', characters.length);
 

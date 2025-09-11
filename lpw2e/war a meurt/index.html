@@ -17,7 +17,6 @@
     <div class="app">
       <h1>Personnage War à Meurt !</h1>
       <h2>Crée ton personnage</h2>
-      <button id="clean-chara" class="btn" style="margin-bottom: 1rem; margin-left: 4rem;">Nettoyer</button>
       <form style="max-width: 800px; margin: 0 auto; padding: 2rem">
         <div class="form-group">
           <label for="name">Nom</label>
@@ -60,17 +59,17 @@
           <button id="help-button" class="btn" type="button">Aide</button>
         </div>
       </form>
-
+        <div id="tips" style="display: none; margin-left: 4rem;">
+          <p id="tip-class"></p>
+          <p id="tip-race"></p>
+        </div>
+      <button id="clean-chara" class="btn" style="margin-bottom: 1rem; margin-left: 4rem; margin-top: 2rem; display: none;">Supprimer les personnages</button>
       <div id="results" style="display: none;">
         <h2>Retour de personnage</h2>
         <p>Votre personnage se nomme : <span id="character-name"></span></p>
         <p>Vous avez choisi la classe: <span id="character-class"></span></p>
         <p>Vous avez choisi la race : <span id="character-race"></span></p>  
       </div>
-        <div id="tips" style="display: none;">
-          <p id="tip-class"></p>
-          <p id="tip-race"></p>
-        </div>
     </div>
   </body>
 </html>
