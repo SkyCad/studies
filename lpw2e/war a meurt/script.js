@@ -1,18 +1,27 @@
-// Tableau pour stocker les personnages (max 2)
-const personnages = [];
-
-// Classe de base pour un personnage
-class Personnage {
-	constructor(nom, classe, race, endurance, puissance, defenseMagique, puissanceMagique) {
-		this.nom = nom;
-		this.classe = classe;
-		this.race = race;
-		this.endurance = endurance;
-		this.puissance = puissance;
-		this.defenseMagique = defenseMagique;
-		this.puissanceMagique = puissanceMagique;
+// Load characters from localStorage or start with empty array
+let characters = [];
+const saved = localStorage.getItem('characters');
+if (saved) {
+	try {
+		characters = JSON.parse(saved);
+	} catch (e) {
+		characters = [];
 	}
 }
+
+// Classe de base pour un personnage
+class Character {
+	constructor(name, charClass, race, endurance, power, magicDefense, magicPower) {
+		this.name = name;
+		this.charClass = charClass;
+		this.race = race;
+		this.endurance = endurance;
+		this.power = power;
+		this.magicDefense = magicDefense;
+		this.magicPower = magicPower;
+	}
+}
+
 
 document.addEventListener('DOMContentLoaded', () => {
 	const form = document.querySelector('form');
@@ -22,190 +31,205 @@ document.addEventListener('DOMContentLoaded', () => {
 	const raceSpan = document.getElementById('character-race');
 	const createBtn = document.getElementById('create-character');
 	const helpBtn = document.getElementById('help-button');
-
-	// Gestion dynamique des limites de points selon la classe et la race
 	const hpLimit = document.getElementById('hp-limit');
 	const powerLimit = document.getElementById('power-limit');
 	const magicDefenseLimit = document.getElementById('magic-defense-limit');
 	const magicPowerLimit = document.getElementById('magic-power-limit');
+    const cleanBtn = document.getElementById('clean-chara');
 
-	function setLimits(classe, race) {
-		// Valeurs par défaut
-		let limits = {
-			endurance: 10,
-			puissance: 10,
-			defenseMagique: 10,
-			puissanceMagique: 10
-		};
-		// Exemples de limites selon la classe
-		if (classe === 'warrior') {
+	// --- Utility functions ---
+
+	// Retourne les limites de stats selon la classe et la race
+	function getLimits(charClass, race) {
+		let limits = { endurance: 10, power: 10, magicDefense: 10, magicPower: 10 };
+		if (charClass === 'warrior') {
 			limits.endurance = 20;
-			limits.puissance = 18;
-			limits.defenseMagique = 8;
-			limits.puissanceMagique = 5;
-		} else if (classe === 'wizard') {
+			limits.power = 18;
+			limits.magicDefense = 8;
+			limits.magicPower = 5;
+		} else if (charClass === 'wizard') {
 			limits.endurance = 8;
-			limits.puissance = 6;
-			limits.defenseMagique = 16;
-			limits.puissanceMagique = 20;
-		} else if (classe === 'thief') {
+			limits.power = 6;
+			limits.magicDefense = 16;
+			limits.magicPower = 20;
+		} else if (charClass === 'thief') {
 			limits.endurance = 12;
-			limits.puissance = 12;
-			limits.defenseMagique = 10;
-			limits.puissanceMagique = 8;
+			limits.power = 12;
+			limits.magicDefense = 10;
+			limits.magicPower = 8;
 		}
-		// Modificateurs selon la race
+		// Modificateurs de race
 		if (race === 'dwarf') {
 			limits.endurance += 4;
-			limits.puissance += 2;
-			limits.puissanceMagique -= 2;
+			limits.power += 2;
+			limits.magicPower -= 2;
 		} else if (race === 'elve') {
 			limits.endurance -= 2;
-			limits.puissance -= 2;
-			limits.puissanceMagique += 4;
-		} else if (race === 'human') {
-			// humains = équilibrés, pas de modif
+			limits.power -= 2;
+			limits.magicPower += 4;
 		}
-		// Affichage dans le HTML
+		return limits;
+	}
+
+	// Affiche les limites de stats dans l'UI
+	function showLimits(limits) {
 		hpLimit.innerText = `Max : ${limits.endurance}`;
 		hpLimit.style.display = '';
-		powerLimit.innerText = `Max : ${limits.puissance}`;
+		powerLimit.innerText = `Max : ${limits.power}`;
 		powerLimit.style.display = '';
-		magicDefenseLimit.innerText = `Max : ${limits.defenseMagique}`;
+		magicDefenseLimit.innerText = `Max : ${limits.magicDefense}`;
 		magicDefenseLimit.style.display = '';
-		magicPowerLimit.innerText = `Max : ${limits.puissanceMagique}`;
+		magicPowerLimit.innerText = `Max : ${limits.magicPower}`;
 		magicPowerLimit.style.display = '';
 	}
 
-	function clearLimits() {
-		hpLimit.innerText = '';
-		hpLimit.style.display = 'none';
-		powerLimit.innerText = '';
-		powerLimit.style.display = 'none';
-		magicDefenseLimit.innerText = '';
-		magicDefenseLimit.style.display = 'none';
-		magicPowerLimit.innerText = '';
-		magicPowerLimit.style.display = 'none';
+	// Cache toutes les limites de stats
+	function hideLimits() {
+		[hpLimit, powerLimit, magicDefenseLimit, magicPowerLimit].forEach(el => {
+			el.innerText = '';
+			el.style.display = 'none';
+		});
 	}
 
-	// Ajout des listeners pour mettre à jour dynamiquement
-	form.elements['class'].addEventListener('change', () => {
-		const classe = form.elements['class'].value;
-		const race = form.elements['race'].value;
-		if (classe && race) {
-			setLimits(classe, race);
+	// Retourne les conseils pour la classe/race
+	function getAdvice(charClass, race) {
+		let classAdvice = '';
+		let raceAdvice = '';
+		if (!charClass && !race) {
+			classAdvice = "Sélectionnez une classe et une race pour obtenir un conseil.";
 		} else {
-			clearLimits();
-		}
-	});
-	form.elements['race'].addEventListener('change', () => {
-		const classe = form.elements['class'].value;
-		const race = form.elements['race'].value;
-		if (classe && race) {
-			setLimits(classe, race);
-		} else {
-			clearLimits();
-		}
-	});
-
-	// Gestion du bouton Aide pour afficher les conseils selon la classe et la race sélectionnées
-	helpBtn.addEventListener('click', (e) => {
-		e.preventDefault();
-		e.stopPropagation();
-		const classe = form.elements['class'].value;
-		const race = form.elements['race'].value;
-		let conseilClasse = '';
-		let conseilRace = '';
-		if (!classe && !race) {
-			conseilClasse = "Sélectionnez une classe et une race pour obtenir un conseil.";
-		} else {
-			// Conseils par classe
-			switch (classe) {
+			switch (charClass) {
 				case 'wizard':
-					conseilClasse = "Le mage maîtrise la magie, mais il est fragile physiquement.";
+					classAdvice = "Le mage maîtrise la magie, mais il est fragile physiquement.";
 					break;
 				case 'warrior':
-					conseilClasse = "Le guerrier est robuste et puissant au corps à corps.";
+					classAdvice = "Le guerrier est robuste et puissant au corps à corps.";
 					break;
 				case 'thief':
-					conseilClasse = "Le voleur est agile et discret, parfait pour les attaques surprises.";
+					classAdvice = "Le voleur est agile et discret, parfait pour les attaques surprises.";
 					break;
 				default:
-					conseilClasse = "Choisissez une classe pour obtenir un conseil.";
+					classAdvice = "Choisissez une classe pour obtenir un conseil.";
 			}
-			// Conseils par race
 			switch (race) {
 				case 'dwarf':
-					conseilRace = "Les nains sont résistants mais peu doués en magie.";
+					raceAdvice = "Les nains sont résistants mais peu doués en magie.";
 					break;
 				case 'elve':
-					conseilRace = "Les elfes sont agiles et très doués pour la magie.";
+					raceAdvice = "Les elfes sont agiles et très doués pour la magie.";
 					break;
 				case 'human':
-					conseilRace = "Les humains sont polyvalents et équilibrés.";
+					raceAdvice = "Les humains sont polyvalents et équilibrés.";
 					break;
 				default:
-					conseilRace = "Choisissez une race pour obtenir un conseil.";
+					raceAdvice = "Choisissez une race pour obtenir un conseil.";
 			}
-			// Conseils spéciaux pour certaines combinaisons
-			if (classe === 'wizard' && race === 'dwarf') {
-				conseilClasse = "Un nain mage, c'est une mauvaise idée ! Les nains ne sont pas réputés pour leur magie.";
+			// Combinaisons spéciales
+			if (charClass === 'wizard' && race === 'dwarf') {
+				classAdvice = "Un nain mage, c'est une mauvaise idée ! Les nains ne sont pas réputés pour leur magie.";
 			}
-			if (classe === 'warrior' && race === 'elve') {
-				conseilClasse = "Un elfe guerrier ? Pourquoi pas, mais les elfes excellent surtout en magie et en agilité.";
+			if (charClass === 'warrior' && race === 'elve') {
+				classAdvice = "Un elfe guerrier ? Pourquoi pas, mais les elfes excellent surtout en magie et en agilité.";
 			}
-			if (classe === 'thief' && race === 'dwarf') {
-				conseilClasse = "Un nain voleur risque de ne pas passer inaperçu !";
+			if (charClass === 'thief' && race === 'dwarf') {
+				classAdvice = "Un nain voleur risque de ne pas passer inaperçu !";
 			}
 		}
-		// Affichage dans la console et dans l'UI
-		console.info('Conseil classe :', conseilClasse);
-		console.info('Conseil race :', conseilRace);
+		return { classAdvice, raceAdvice };
+	}
+
+	// Affiche les conseils dans l'UI
+	function showAdvice(classAdvice, raceAdvice) {
 		const tipsDiv = document.getElementById('tips');
 		const tipClass = tipsDiv.querySelector('#tip-class');
 		const tipRace = tipsDiv.querySelector('#tip-race');
 		tipsDiv.style.display = '';
-		tipClass.innerText = conseilClasse;
-		tipRace.innerText = conseilRace;
-		// Optionnel : animation visuelle
+		tipClass.innerText = classAdvice;
+		tipRace.innerText = raceAdvice;
 		tipClass.style.opacity = 1;
 		tipRace.style.opacity = 1;
+	}
+
+	// --- Event listeners ---
+
+	form.elements['class'].addEventListener('change', () => {
+		const charClass = form.elements['class'].value;
+		const race = form.elements['race'].value;
+		if (charClass && race) {
+			showLimits(getLimits(charClass, race));
+		} else {
+			hideLimits();
+		}
+	});
+	form.elements['race'].addEventListener('change', () => {
+		const charClass = form.elements['class'].value;
+		const race = form.elements['race'].value;
+		if (charClass && race) {
+			showLimits(getLimits(charClass, race));
+		} else {
+			hideLimits();
+		}
+	});
+
+	helpBtn.addEventListener('click', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		const charClass = form.elements['class'].value;
+		const race = form.elements['race'].value;
+		const { classAdvice, raceAdvice } = getAdvice(charClass, race);
+		console.info('Class advice:', classAdvice);
+		console.info('Race advice:', raceAdvice);
+		showAdvice(classAdvice, raceAdvice);
+	});
+    
+    cleanBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (confirm('Cette action supprimera tous les personnages créés. Continuer ?')) {
+            characters = [];
+            localStorage.removeItem('characters');
+		}
 	});
 
 	form.addEventListener('submit', (e) => {
 		e.preventDefault();
-		console.log('Tentative de création de personnage...');
-		if (personnages.length >= 2) {
-			alert('Vous ne pouvez créer que 2 personnages maximum.');
-			console.warn('Limite de personnages atteinte.');
+		console.log('Trying to create a character...');
+		if (characters.length >= 2) {
+			alert('You can only create 2 characters max.');
+			console.warn('Character limit reached.');
 			return;
 		}
-		const nom = form.elements['name'].value.trim();
-		const classe = form.elements['class'].value;
+		const name = form.elements['name'].value.trim();
+		const charClass = form.elements['class'].value;
 		const race = form.elements['race'].value;
 		const endurance = parseInt(form.elements['endurance'].value, 10) || 0;
-		const puissance = parseInt(form.elements['power'].value, 10) || 0;
-		const defenseMagique = parseInt(form.elements['magic-defense'].value, 10) || 0;
-		const puissanceMagique = parseInt(form.elements['magic-power'].value, 10) || 0;
+		const power = parseInt(form.elements['power'].value, 10) || 0;
+		const magicDefense = parseInt(form.elements['magic-defense'].value, 10) || 0;
+		const magicPower = parseInt(form.elements['magic-power'].value, 10) || 0;
 
-		if (!nom || !classe || !race) {
-			alert('Veuillez remplir tous les champs obligatoires.');
-			console.error('Champs obligatoires manquants.');
+		if (!name || !charClass || !race) {
+			alert('Please fill all required fields.');
+			console.error('Missing required fields.');
 			return;
 		}
 
-		const perso = new Personnage(nom, classe, race, endurance, puissance, defenseMagique, puissanceMagique);
-		personnages.push(perso);
-		console.log(`Personnage créé :`, perso);
-		console.log(`Nombre de personnages actuellement : ${personnages.length}`);
+		const character = new Character(name, charClass, race, endurance, power, magicDefense, magicPower);
+		characters.push(character);
+		// Save to localStorage after each change
+		localStorage.setItem('characters', JSON.stringify(characters));
+		console.log('Character created:', character);
+		console.log('Current number of characters:', characters.length);
 
-		// Affichage du résultat
-		nameSpan.textContent = nom;
-		classSpan.textContent = classe;
+		// Show result
+		nameSpan.textContent = name;
+		classSpan.textContent = charClass;
 		raceSpan.textContent = race;
-		results.style.display = 'block';
 
-		// Optionnel : reset le formulaire
+	results.style.display = 'block';
+	// Scroll to results
+	results.scrollIntoView({ behavior: 'smooth' });
+
+		// Optionally reset the form
 		form.reset();
+		hideLimits();
 	});
 });
