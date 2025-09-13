@@ -237,10 +237,33 @@ document.addEventListener("DOMContentLoaded", () => {
         <div><span class="stat-label">Défense magique :</span> <span id="modal-char-magic-defense"></span></div>
         <div><span class="stat-label">Puissance magique :</span> <span id="modal-char-magic-power"></span></div>
       </div>
+      <button id="deleteCharModalBtn" class="btn-modal btn-sm btn-danger" style="margin-top:1.5em;">Supprimer ce personnage</button>
     </div>
   </div>`;
         document.body.appendChild(modal);
         modal.querySelector("#closeCardModal").onclick = () => modal.remove();
+        // Ajoute le handler pour supprimer ce personnage
+        modal.querySelector("#deleteCharModalBtn").onclick = function() {
+          if (!confirm('Supprimer ce personnage ?')) return;
+          // Supprime du localStorage
+          let stored = localStorage.getItem('characters');
+          if (stored) {
+            try {
+              let arr = JSON.parse(stored);
+              if (Array.isArray(arr)) {
+                arr = arr.filter(c => c.name !== char.name);
+                localStorage.setItem('characters', JSON.stringify(arr));
+              }
+            } catch(e) {}
+          }
+          // Supprime aussi du tableau characters en mémoire
+          const idx = characters.findIndex(c => c.name === char.name);
+          if (idx !== -1) {
+            characters.splice(idx, 1);
+          }
+          renderCharacters();
+          modal.remove();
+        };
       }
       // Remplit la fiche avec les infos du personnage
       document.getElementById("modal-char-name").textContent = char.name;
