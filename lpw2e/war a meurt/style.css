@@ -193,4 +193,29 @@ input:focus, select:focus {
   animation: tips-glow 2s infinite alternate;
   transition: color 0.3s;
 }
+ 
+/* chara card */
 
+.character-card {
+      max-width: 350px;
+      margin: 2rem auto;
+      border-radius: 1rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .character-card h2 {
+      margin-bottom: 0.5rem;
+    }
+    .character-card .badge {
+      margin: 0.2rem;
+    }
+    .character-card .stats {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .character-card .stat-label {
+      font-weight: bold;
+    }

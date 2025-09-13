@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const promise = loadCharacters();
 	console.log('Promise de loadCharacters:', promise);
 	promise.then(() => {
-		console.log('Personnages chargés:', characters);
+		console.log('joueurs chargés:', characters);
 		if (characters.length > 0) {
 			cleanBtn.style.display = 'block';
 			renderCharacters();
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		charDisplay.style.display = 'block';
 		cleanBtn.style.display = 'block';
-		let html = '<h3>Personnages enregistrés</h3><ul class="list-group">';
+		let html = '<h3>joueurs enregistrés</h3><ul class="list-group">';
 		characters.forEach((char, idx) => {
 			html += `<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom: 15px;">
 			<strong>${char.name}</strong> (${char.charClass}, ${char.race})
