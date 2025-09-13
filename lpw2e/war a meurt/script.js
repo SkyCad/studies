@@ -34,13 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	const powerLimit = document.getElementById('power-limit');
 	const magicDefenseLimit = document.getElementById('magic-defense-limit');
 	const magicPowerLimit = document.getElementById('magic-power-limit');
-	const charDisplay = document.getElementById('character-display');
+	const cleanBtn = document.getElementById('clean-chara');
 
 	if (characters.length > 0) {
-		charDisplay.style.display = 'block';
+		cleanBtn.style.display = 'block';
 		renderCharacters();
 	} else {
-		charDisplay.style.display = 'none';
+		cleanBtn.style.display = 'none';
+		document.getElementById('character-display').style.display = 'none';
 	}
 
 	// --- Utility fonctions ---
@@ -155,12 +156,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Affiche les personnages dans la div #character-display
 	function renderCharacters() {
+		const charDisplay = document.getElementById('character-display');
 		if (characters.length === 0) {
 			charDisplay.innerHTML = '<p>Aucun personnage enregistré.</p>';
 			charDisplay.style.display = 'none';
+			cleanBtn.style.display = 'none';
 			return;
 		}
 		charDisplay.style.display = 'block';
+		cleanBtn.style.display = 'block';
 		let html = '<h3>Personnages enregistrés</h3><ul class="list-group">';
 		characters.forEach((char, idx) => {
 			html += `<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom: 15px;">
@@ -169,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			</li>`;
 		});
 		html += '</ul>';
-		html += '<button id="clean-chara" class="btn btn-warning mt-3" style="margin-top: 2rem;">Supprimer les personnages</button>';
 		charDisplay.innerHTML = html;
 
 		// Ajoute les listeners sur les boutons supprimer individuels
@@ -183,20 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			});
 		});
-
-		// Ajoute le listener sur le bouton clean-chara
-		const cleanBtn = document.getElementById('clean-chara');
-		if (cleanBtn) {
-			cleanBtn.addEventListener('click', (e) => {
-				e.preventDefault();
-				if (confirm('Cette action supprimera tous les personnages créés. Continuer ?')) {
-					characters = [];
-					localStorage.removeItem('characters');
-					charDisplay.style.display = 'none';
-					charDisplay.innerHTML = '';
-				}
-			});
-		}
 	}
 
 	// --- Event listeners et form ---
@@ -236,8 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (confirm('Cette action supprimera tous les personnages créés. Continuer ?')) {
 			characters = [];
 			localStorage.removeItem('characters');
-			charDisplay.style.display = 'none';
-			charDisplay.innerHTML = '';
+			cleanBtn.style.display = 'none';
+			renderCharacters();
 		}
 	});
 
@@ -278,8 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const character = new Character(name, charClass, race, endurance, power, magicDefense, magicPower);
 		characters.push(character);
-		// Save to localStorage after each change
-		localStorage.setItem('characters', JSON.stringify(characters));
+	// Save to localStorage after each change
+	localStorage.setItem('characters', JSON.stringify(characters));
+	cleanBtn.style.display = 'block';
 		console.log('Personnage créé :', character);
 		console.log('Nombre actuel de personnages :', characters.length);
 
