@@ -34,12 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	const powerLimit = document.getElementById('power-limit');
 	const magicDefenseLimit = document.getElementById('magic-defense-limit');
 	const magicPowerLimit = document.getElementById('magic-power-limit');
-	const cleanBtn = document.getElementById('clean-chara');
+	const charDisplay = document.getElementById('character-display');
 
 	if (characters.length > 0) {
-		cleanBtn.style.display = 'block';
+		charDisplay.style.display = 'block';
+		renderCharacters();
 	} else {
-		cleanBtn.style.display = 'none';
+		charDisplay.style.display = 'none';
 	}
 
 	// --- Utility fonctions ---
@@ -152,6 +153,52 @@ document.addEventListener('DOMContentLoaded', () => {
         return characters.some(char => char.name === name);
     }
 
+	// Affiche les personnages dans la div #character-display
+	function renderCharacters() {
+		if (characters.length === 0) {
+			charDisplay.innerHTML = '<p>Aucun personnage enregistré.</p>';
+			charDisplay.style.display = 'none';
+			return;
+		}
+		charDisplay.style.display = 'block';
+		let html = '<h3>Personnages enregistrés</h3><ul class="list-group">';
+		characters.forEach((char, idx) => {
+			html += `<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom: 15px;">
+			<strong>${char.name}</strong> (${char.charClass}, ${char.race})
+			<button class="btn btn-danger btn-sm" style="margin-left: 10px" data-idx="${idx}">Supprimer</button>
+			</li>`;
+		});
+		html += '</ul>';
+		html += '<button id="clean-chara" class="btn btn-warning mt-3" style="margin-top: 2rem;">Supprimer les personnages</button>';
+		charDisplay.innerHTML = html;
+
+		// Ajoute les listeners sur les boutons supprimer individuels
+		charDisplay.querySelectorAll('button[data-idx]').forEach(btn => {
+			btn.addEventListener('click', function() {
+				const idx = parseInt(this.getAttribute('data-idx'));
+				if (confirm('Supprimer ce personnage ?')) {
+					characters.splice(idx, 1);
+					localStorage.setItem('characters', JSON.stringify(characters));
+					renderCharacters();
+				}
+			});
+		});
+
+		// Ajoute le listener sur le bouton clean-chara
+		const cleanBtn = document.getElementById('clean-chara');
+		if (cleanBtn) {
+			cleanBtn.addEventListener('click', (e) => {
+				e.preventDefault();
+				if (confirm('Cette action supprimera tous les personnages créés. Continuer ?')) {
+					characters = [];
+					localStorage.removeItem('characters');
+					charDisplay.style.display = 'none';
+					charDisplay.innerHTML = '';
+				}
+			});
+		}
+	}
+
 	// --- Event listeners et form ---
 
 	form.elements['class'].addEventListener('change', () => {
@@ -189,7 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (confirm('Cette action supprimera tous les personnages créés. Continuer ?')) {
 			characters = [];
 			localStorage.removeItem('characters');
-			cleanBtn.style.display = 'none';
+			charDisplay.style.display = 'none';
+			charDisplay.innerHTML = '';
 		}
 	});
 
@@ -230,9 +278,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const character = new Character(name, charClass, race, endurance, power, magicDefense, magicPower);
 		characters.push(character);
-	// Save to localStorage after each change
-	localStorage.setItem('characters', JSON.stringify(characters));
-	cleanBtn.style.display = 'block';
+		// Save to localStorage after each change
+		localStorage.setItem('characters', JSON.stringify(characters));
 		console.log('Personnage créé :', character);
 		console.log('Nombre actuel de personnages :', characters.length);
 
@@ -248,5 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Optionally reset the form
 		form.reset();
 		hideLimits();
+		renderCharacters();
 	});
 });
