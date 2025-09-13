@@ -1,12 +1,23 @@
-// Récupère les personnages sauvegardés depuis le localStorage
+// Récupère les personnages sauvegardés depuis data.json (simulation fetch)
 let characters = [];
-const saved = localStorage.getItem('characters');
-if (saved) {
+async function loadCharacters() {
 	try {
-		characters = JSON.parse(saved);
+		const response = await fetch('data.json');
+		if (response.ok) {
+			const gamedata = await response.text();
+			characters = JSON.parse(gamedata);
+			if (!Array.isArray(characters)) characters = [];
+		} else {
+			characters = [];
+		}
 	} catch (e) {
 		characters = [];
 	}
+}
+
+// sauvegarde personnage
+async function saveCharacters() {
+	localStorage.setItem('characters', JSON.stringify(characters));
 }
 
 // Classe de base pour un personnage
@@ -36,13 +47,19 @@ document.addEventListener('DOMContentLoaded', () => {
 	const magicPowerLimit = document.getElementById('magic-power-limit');
 	const cleanBtn = document.getElementById('clean-chara');
 
-	if (characters.length > 0) {
-		cleanBtn.style.display = 'block';
-		renderCharacters();
-	} else {
-		cleanBtn.style.display = 'none';
-		document.getElementById('character-display').style.display = 'none';
-	}
+	// Affiche la Promise dans la console
+	const promise = loadCharacters();
+	console.log('Promise de loadCharacters:', promise);
+	promise.then(() => {
+		console.log('Personnages chargés:', characters);
+		if (characters.length > 0) {
+			cleanBtn.style.display = 'block';
+			renderCharacters();
+		} else {
+			cleanBtn.style.display = 'none';
+			document.getElementById('character-display').style.display = 'none';
+		}
+	});
 
 	// --- Utility fonctions ---
 
@@ -150,9 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
     // Vérifie si le nom existe déjà
-    function nameExists(name) {
-        return characters.some(char => char.name === name);
-    }
+	function nameExists(name) {
+		return characters.some(char => char.name === name);
+	}
 
 	// Affiche les personnages dans la div #character-display
 	function renderCharacters() {
@@ -181,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const idx = parseInt(this.getAttribute('data-idx'));
 				if (confirm('Supprimer ce personnage ?')) {
 					characters.splice(idx, 1);
-					localStorage.setItem('characters', JSON.stringify(characters));
+					saveCharacters();
 					renderCharacters();
 				}
 			});
@@ -224,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		e.preventDefault();
 		if (confirm('Cette action supprimera tous les personnages créés. Continuer ?')) {
 			characters = [];
-			localStorage.removeItem('characters');
+			saveCharacters();
 			cleanBtn.style.display = 'none';
 			renderCharacters();
 		}
@@ -234,11 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	form.addEventListener('submit', (e) => {
 		e.preventDefault();
 		console.log('Creation de personnage');
-		if (characters.length >= 2) {
-			alert('Vous ne pouvez créer que 2 personnages au maximum.');
-			console.warn('limite de personnages atteint');
-			return;
-		}
+		// Limite de 2 personnages supprimée
 		const name = form.elements['name'].value.trim();
 		const charClass = form.elements['class'].value;
 		const race = form.elements['race'].value;
@@ -267,9 +280,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const character = new Character(name, charClass, race, endurance, power, magicDefense, magicPower);
 		characters.push(character);
-	// Save to localStorage after each change
-	localStorage.setItem('characters', JSON.stringify(characters));
-	cleanBtn.style.display = 'block';
+		// Save to data.json (simulé)
+		saveCharacters();
+		cleanBtn.style.display = 'block';
 		console.log('Personnage créé :', character);
 		console.log('Nombre actuel de personnages :', characters.length);
 

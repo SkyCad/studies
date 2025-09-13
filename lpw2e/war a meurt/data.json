@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Arthos",
+    "charClass": "warrior",
+    "race": "human",
+    "endurance": 80,
+    "power": 35,
+    "magicDefense": 10,
+    "magicPower": 5
+  },
+  {
+    "name": "Lyria",
+    "charClass": "wizard",
+    "race": "elve",
+    "endurance": 60,
+    "power": 8,
+    "magicDefense": 25,
+    "magicPower": 35
+  }
+]
