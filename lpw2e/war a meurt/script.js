@@ -1,7 +1,9 @@
 
 
 import { Character } from './character.js';
-import { getLimits } from './limits.js';
+import { getLimits, checkStatsWithinLimits } from './limits.js';
+import { getAdvice } from './advice.js';
+import { nameExists, mergeCharacters } from './utils.js';
 
 let characters = [];
 
@@ -29,13 +31,7 @@ async function loadCharacters() {
     charsFromStorage = [];
   }
   // Fusionner les deux listes (éviter doublons par nom)
-  const allChars = [...charsFromJson];
-  charsFromStorage.forEach((c) => {
-    if (!allChars.some((cc) => cc.name === c.name)) {
-      allChars.push(c);
-    }
-  });
-  characters = allChars;
+  characters = mergeCharacters(charsFromJson, charsFromStorage);
 }
 
 async function saveCharacters() {
@@ -93,57 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Retourne les conseils pour la classe/race
-  function getAdvice(charClass, race) {
-    let classAdvice = "";
-    let raceAdvice = "";
-    if (!charClass && !race) {
-      classAdvice =
-        "Sélectionnez une classe et une race pour obtenir un conseil.";
-    } else {
-      switch (charClass) {
-        case "wizard":
-          classAdvice =
-            "Le mage maîtrise la magie, mais il est fragile physiquement.";
-          break;
-        case "warrior":
-          classAdvice = "Le guerrier est robuste et puissant au corps à corps.";
-          break;
-        case "thief":
-          classAdvice =
-            "Le voleur est agile et discret, parfait pour les attaques surprises.";
-          break;
-        default:
-          classAdvice = "Choisissez une classe pour obtenir un conseil.";
-      }
-      switch (race) {
-        case "dwarf":
-          raceAdvice = "Les nains sont résistants mais peu doués en magie.";
-          break;
-        case "elve":
-          raceAdvice = "Les elfes sont agiles et très doués pour la magie.";
-          break;
-        case "human":
-          raceAdvice = "Les humains sont polyvalents et équilibrés.";
-          break;
-        default:
-          raceAdvice = "Choisissez une race pour obtenir un conseil.";
-      }
-      // Combinaisons spéciales
-      if (charClass === "wizard" && race === "dwarf") {
-        classAdvice =
-          "Un nain mage, c'est une mauvaise idée ! Les nains ne sont pas réputés pour leur magie.";
-      }
-      if (charClass === "warrior" && race === "elve") {
-        classAdvice =
-          "Un elfe guerrier ? Pourquoi pas, mais les elfes excellent surtout en magie et en agilité.";
-      }
-      if (charClass === "thief" && race === "dwarf") {
-        classAdvice = "Un nain voleur risque de ne pas passer inaperçu !";
-      }
-    }
-    return { classAdvice, raceAdvice };
-  }
+  // ...existing code...
 
   // Affiche les conseils dans l'UI
   function showAdvice(classAdvice, raceAdvice) {
@@ -157,10 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tipRace.style.opacity = 1;
   }
 
-  // Vérifie si le nom existe déjà
-  function nameExists(name) {
-    return characters.some((char) => char.name === name);
-  }
+  // ...existing code...
 
   // Affiche les personnages dans la div #character-display
   function renderCharacters() {
@@ -320,37 +263,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (nameExists(name)) {
+    if (nameExists(name, characters)) {
       alert("Ce nom de personnage existe déjà.");
       return;
     }
 
 
-    // Vérifie que chaque stat ne dépasse pas sa limite
+    // Vérifie que chaque stat ne dépasse pas sa limite et le total
     const limits = getLimits(charClass, race);
-    if (endurance > limits.endurance) {
-      alert(`L'endurance ne peut pas dépasser ${limits.endurance}`);
-      return;
-    }
-    if (power > limits.power) {
-      alert(`La puissance ne peut pas dépasser ${limits.power}`);
-      return;
-    }
-    if (magicDefense > limits.magicDefense) {
-      alert(`La défense magique ne peut pas dépasser ${limits.magicDefense}`);
-      return;
-    }
-    if (magicPower > limits.magicPower) {
-      alert(`La puissance magique ne peut pas dépasser ${limits.magicPower}`);
-      return;
-    }
-
-    // Check totalStats
-    const totalStats = endurance + power + magicDefense + magicPower;
-    if (totalStats > 100) {
-      alert(
-        "Vous ne pouvez pas répartir plus de 100 points de stats au total."
-      );
+    const stats = { endurance, power, magicDefense, magicPower };
+    const limitError = checkStatsWithinLimits(stats, limits);
+    if (limitError) {
+      alert(limitError);
       return;
     }
 
