@@ -3,13 +3,31 @@ let characters = [];
 async function loadCharacters() {
   try {
     const response = await fetch("data.json");
+    let charsFromJson = [];
     if (response.ok) {
       const gamedata = await response.text();
-      characters = JSON.parse(gamedata);
-      if (!Array.isArray(characters)) characters = [];
-    } else {
-      characters = [];
+      charsFromJson = JSON.parse(gamedata);
+      if (!Array.isArray(charsFromJson)) charsFromJson = [];
     }
+    // Charger les personnages du localStorage
+    let charsFromStorage = [];
+    try {
+      const stored = localStorage.getItem("characters");
+      if (stored) {
+        charsFromStorage = JSON.parse(stored);
+        if (!Array.isArray(charsFromStorage)) charsFromStorage = [];
+      }
+    } catch (e) {
+      charsFromStorage = [];
+    }
+    // Fusionner les deux listes (éviter doublons par nom)
+    const allChars = [...charsFromJson];
+    charsFromStorage.forEach((c) => {
+      if (!allChars.some((cc) => cc.name === c.name)) {
+        allChars.push(c);
+      }
+    });
+    characters = allChars;
   } catch (e) {
     characters = [];
   }

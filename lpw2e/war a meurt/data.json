@@ -3,18 +3,18 @@
     "name": "Arthos",
     "charClass": "warrior",
     "race": "human",
-    "endurance": 80,
-    "power": 35,
-    "magicDefense": 10,
-    "magicPower": 5
+    "endurance": 70,
+    "power": 25,
+    "magicDefense": 5,
+    "magicPower": 0
   },
   {
     "name": "Lyria",
     "charClass": "wizard",
     "race": "elve",
-    "endurance": 60,
-    "power": 8,
-    "magicDefense": 25,
-    "magicPower": 35
+    "endurance": 50,
+    "power": 5,
+    "magicDefense": 15,
+    "magicPower": 30
   }
 ]
