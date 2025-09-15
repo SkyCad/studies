@@ -1,62 +1,43 @@
-// Récupère les personnages sauvegardés depuis data.json (simulation fetch)
+
+import { Character } from './character.js';
+
 let characters = [];
+
 async function loadCharacters() {
+  // Charger les personnages depuis data.json via fetch
+  let charsFromJson = [];
   try {
-    const response = await fetch("data.json");
-    let charsFromJson = [];
+    const response = await fetch('data.json');
     if (response.ok) {
-      const gamedata = await response.text();
-      charsFromJson = JSON.parse(gamedata);
+      charsFromJson = await response.json();
       if (!Array.isArray(charsFromJson)) charsFromJson = [];
     }
-    // Charger les personnages du localStorage
-    let charsFromStorage = [];
-    try {
-      const stored = localStorage.getItem("characters");
-      if (stored) {
-        charsFromStorage = JSON.parse(stored);
-        if (!Array.isArray(charsFromStorage)) charsFromStorage = [];
-      }
-    } catch (e) {
-      charsFromStorage = [];
-    }
-    // Fusionner les deux listes (éviter doublons par nom)
-    const allChars = [...charsFromJson];
-    charsFromStorage.forEach((c) => {
-      if (!allChars.some((cc) => cc.name === c.name)) {
-        allChars.push(c);
-      }
-    });
-    characters = allChars;
   } catch (e) {
-    characters = [];
+    charsFromJson = [];
   }
+  // Charger les personnages du localStorage
+  let charsFromStorage = [];
+  try {
+    const stored = localStorage.getItem("characters");
+    if (stored) {
+      charsFromStorage = JSON.parse(stored);
+      if (!Array.isArray(charsFromStorage)) charsFromStorage = [];
+    }
+  } catch (e) {
+    charsFromStorage = [];
+  }
+  // Fusionner les deux listes (éviter doublons par nom)
+  const allChars = [...charsFromJson];
+  charsFromStorage.forEach((c) => {
+    if (!allChars.some((cc) => cc.name === c.name)) {
+      allChars.push(c);
+    }
+  });
+  characters = allChars;
 }
 
-// sauvegarde personnage
 async function saveCharacters() {
   localStorage.setItem("characters", JSON.stringify(characters));
-}
-
-// Classe de base pour un personnage
-class Character {
-  constructor(
-    name,
-    charClass,
-    race,
-    endurance,
-    power,
-    magicDefense,
-    magicPower
-  ) {
-    this.name = name;
-    this.charClass = charClass;
-    this.race = race;
-    this.endurance = endurance;
-    this.power = power;
-    this.magicDefense = magicDefense;
-    this.magicPower = magicPower;
-  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -99,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (charClass === "wizard") {
       limits = { endurance: 60, power: 8, magicDefense: 25, magicPower: 35 };
     }
-    // Race modifiers (do not affect endurance)
+    // Race modifiers 
     if (race === "dwarf") {
       limits.power += 10;
       limits.endurance += 15;
@@ -346,7 +327,6 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     console.log("Creation de personnage");
-    // Limite de 2 personnages supprimée
     const name = form.elements["name"].value.trim();
     const charClass = form.elements["class"].value;
     const race = form.elements["race"].value;
@@ -367,7 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Check if the sum of the 3 stats exceeds 100
+    // Check totalStats
     const totalStats = endurance + power + magicDefense + magicPower;
     if (totalStats > 100) {
       alert(
@@ -376,7 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const character = new Character(
+    const character = new Character({
       name,
       charClass,
       race,
@@ -384,7 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
       power,
       magicDefense,
       magicPower
-    );
+    });
     characters.push(character);
     // Save to data.json (simulé)
     saveCharacters();
