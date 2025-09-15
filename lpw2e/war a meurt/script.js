@@ -1,5 +1,3 @@
-
-
 import { Character } from './character.js';
 import { getLimits, checkStatsWithinLimits } from './limits.js';
 import { getAdvice } from './advice.js';
@@ -67,8 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Utility fonctions ---
 
-  // ...existing code...
-
   // Affiche les limites de stats dans l'UI
   function showLimits(limits) {
     hpLimit.innerText = `Max : ${limits.endurance}`;
@@ -89,8 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ...existing code...
-
   // Affiche les conseils dans l'UI
   function showAdvice(classAdvice, raceAdvice) {
     const tipsDiv = document.getElementById("tips");
@@ -102,8 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
     tipClass.style.opacity = 1;
     tipRace.style.opacity = 1;
   }
-
-  // ...existing code...
 
   // Affiche les personnages dans la div #character-display
   function renderCharacters() {
@@ -200,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- Event listeners et form ---
+  // --- Event listeners/form ---
 
   form.elements["class"].addEventListener("change", () => {
     const charClass = form.elements["class"].value;
