@@ -1,5 +1,7 @@
 
+
 import { Character } from './character.js';
+import { getLimits } from './limits.js';
 
 let characters = [];
 
@@ -69,31 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Utility fonctions ---
 
-  // Retourne les limites de stats selon la classe et la race
-  function getLimits(charClass, race) {
-    // All classes have at least 60 endurance, then more for some
-    let limits = { endurance: 60, power: 20, magicDefense: 10, magicPower: 10 };
-    if (charClass === "warrior") {
-      limits = { endurance: 80, power: 35, magicDefense: 10, magicPower: 5 };
-    } else if (charClass === "thief") {
-      limits = { endurance: 65, power: 25, magicDefense: 20, magicPower: 5 };
-    } else if (charClass === "wizard") {
-      limits = { endurance: 60, power: 8, magicDefense: 25, magicPower: 35 };
-    }
-    // Race modifiers 
-    if (race === "dwarf") {
-      limits.power += 10;
-      limits.endurance += 15;
-    } else if (race === "elve") {
-      limits.magicPower += 15;
-      limits.magicDefense += 10;
-    }
-    // Clamp values to be >= 0
-    Object.keys(limits).forEach((k) => {
-      if (limits[k] < 0) limits[k] = 0;
-    });
-    return limits;
-  }
+  // ...existing code...
 
   // Affiche les limites de stats dans l'UI
   function showLimits(limits) {
@@ -344,6 +322,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (nameExists(name)) {
       alert("Ce nom de personnage existe déjà.");
+      return;
+    }
+
+
+    // Vérifie que chaque stat ne dépasse pas sa limite
+    const limits = getLimits(charClass, race);
+    if (endurance > limits.endurance) {
+      alert(`L'endurance ne peut pas dépasser ${limits.endurance}`);
+      return;
+    }
+    if (power > limits.power) {
+      alert(`La puissance ne peut pas dépasser ${limits.power}`);
+      return;
+    }
+    if (magicDefense > limits.magicDefense) {
+      alert(`La défense magique ne peut pas dépasser ${limits.magicDefense}`);
+      return;
+    }
+    if (magicPower > limits.magicPower) {
+      alert(`La puissance magique ne peut pas dépasser ${limits.magicPower}`);
       return;
     }
 
