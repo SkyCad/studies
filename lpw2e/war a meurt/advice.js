@@ -34,18 +34,6 @@ export function getAdvice(charClass, race) {
       default:
         raceAdvice = "Choisissez une race pour obtenir un conseil.";
     }
-    // Combinaisons spéciales
-    if (charClass === "wizard" && race === "dwarf") {
-      classAdvice =
-        "Un nain mage, c'est une mauvaise idée ! Les nains ne sont pas réputés pour leur magie.";
-    }
-    if (charClass === "warrior" && race === "elve") {
-      classAdvice =
-        "Un elfe guerrier ? Pourquoi pas, mais les elfes excellent surtout en magie et en agilité.";
-    }
-    if (charClass === "thief" && race === "dwarf") {
-      classAdvice = "Un nain voleur risque de ne pas passer inaperçu !";
-    }
   }
   return { classAdvice, raceAdvice };
 }
