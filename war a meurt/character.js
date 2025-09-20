@@ -54,8 +54,13 @@ export class Character {
       }
     } else if (type === "potion") {
       const avant = this.endurance;
-      this.endurance += 35;
-      if (this.endurance > this.maxEndurance) this.endurance = this.maxEndurance;
+      // Correction : ne jamais dépasser maxEndurance
+      let toHeal = 35;
+      if (this.endurance + toHeal > this.maxEndurance) {
+        toHeal = this.maxEndurance - this.endurance;
+      }
+      if (toHeal < 0) toHeal = 0;
+      this.endurance += toHeal;
       const regen = this.endurance - avant;
       console.log(`${this.name} utilise une potion et régénère ${regen} PV !`);
       console.log(`${this.name} a maintenant ${this.endurance} PV.`);

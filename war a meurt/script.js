@@ -44,38 +44,98 @@ document.addEventListener("DOMContentLoaded", () => {
   if (arenaLeft && arenaRight) {
     loadCharacters().then(() => {
       if (characters.length >= 2) {
-        arenaLeft.innerHTML = `
-          <div>
-            <strong>${characters[0].name}</strong>
-            <div class="life-bar">
-              <span class="life-bar-text">PV : ${characters[0].endurance}</span>
-              <div class="life-bar-bg">
-                <div class="life-bar-fill" style="width: 100%"></div>
+        // On garde une copie locale pour manipuler les PV
+  // On doit bien initialiser maxEndurance pour chaque personnage
+  let charA = Object.assign(Object.create(Character.prototype), characters[0]);
+  let charB = Object.assign(Object.create(Character.prototype), characters[1]);
+  if (!charA.maxEndurance) charA.maxEndurance = characters[0].endurance;
+  if (!charB.maxEndurance) charB.maxEndurance = characters[1].endurance;
+
+        function updateArena() {
+          // Met à jour l'affichage des PV et barres de vie
+          const maxA = charA.maxEndurance;
+          const maxB = charB.maxEndurance;
+          arenaLeft.innerHTML = `
+            <div>
+              <strong>${charA.name}</strong>
+              <div class="life-bar">
+                <span class="life-bar-text">PV : ${charA.endurance}</span>
+                <div class="life-bar-bg">
+                  <div class="life-bar-fill" style="width: ${(charA.endurance / maxA) * 100}%"></div>
+                </div>
+              </div>
+              <div class="arena-actions">
+                <button class="btn" id="left-choice-attack" style="margin: 5px;">Attaque</button>
+                <button class="btn" id="left-choice-magic" style="margin: 5px;">Magie</button>
+                <button class="btn" id="left-choice-potion" style="margin: 5px;">Potion</button>
               </div>
             </div>
-            <div class="arena-actions">
-              <button class="btn" id="left-choice-attack" style="margin: 5px;">Attaque</button>
-              <button class="btn" id="left-choice-magic" style="margin: 5px;">Magie</button>
-              <button class="btn" id="left-choice-potion" style="margin: 5px;">Potion</button>
-            </div>
-          </div>
-        `;
-        arenaRight.innerHTML = `
-          <div>
-            <strong>${characters[1].name}</strong>
-            <div class="life-bar">
-              <span class="life-bar-text">PV : ${characters[1].endurance}</span>
-              <div class="life-bar-bg">
-                <div class="life-bar-fill" style="width: 100%"></div>
+          `;
+          arenaRight.innerHTML = `
+            <div>
+              <strong>${charB.name}</strong>
+              <div class="life-bar">
+                <span class="life-bar-text">PV : ${charB.endurance}</span>
+                <div class="life-bar-bg">
+                  <div class="life-bar-fill" style="width: ${(charB.endurance / maxB) * 100}%"></div>
+                </div>
+              </div>
+              <div class="arena-actions" style="gap: 10px;">
+                <button class="btn" id="right-choice-attack" style="margin: 5px;">Attaque</button>
+                <button class="btn" id="right-choice-magic" style="margin: 5px;">Magie</button>
+                <button class="btn" id="right-choice-potion" style="margin: 5px;">Potion</button>
               </div>
             </div>
-            <div class="arena-actions" style="gap: 10px;">
-              <button class="btn" id="right-choice-attack" style="margin: 5px;">Attaque</button>
-              <button class="btn" id="right-choice-magic" style="margin: 5px;">Magie</button>
-              <button class="btn" id="right-choice-potion" style="margin: 5px;">Potion</button>
-            </div>
-          </div>
-        `;
+          `;
+          // Désactive les boutons si mort
+          if (charA.endurance <= 0) {
+            arenaLeft.querySelectorAll('button').forEach(btn => btn.disabled = true);
+          }
+          if (charB.endurance <= 0) {
+            arenaRight.querySelectorAll('button').forEach(btn => btn.disabled = true);
+          }
+        }
+
+        // Initial render
+        updateArena();
+
+        // Ajout listeners pour les actions de chaque côté
+        function addListeners() {
+          // Joueur gauche attaque droite
+          arenaLeft.querySelector('#left-choice-attack').onclick = () => {
+            charA.choice(charB, 'physique');
+            updateArena();
+          };
+          arenaLeft.querySelector('#left-choice-magic').onclick = () => {
+            charA.choice(charB, 'magique');
+            updateArena();
+          };
+          arenaLeft.querySelector('#left-choice-potion').onclick = () => {
+            charA.choice(charA, 'potion');
+            updateArena();
+          };
+          // Joueur droite attaque gauche
+          arenaRight.querySelector('#right-choice-attack').onclick = () => {
+            charB.choice(charA, 'physique');
+            updateArena();
+          };
+          arenaRight.querySelector('#right-choice-magic').onclick = () => {
+            charB.choice(charA, 'magique');
+            updateArena();
+          };
+          arenaRight.querySelector('#right-choice-potion').onclick = () => {
+            charB.choice(charB, 'potion');
+            updateArena();
+          };
+        }
+        // Ajoute listeners après chaque render
+        addListeners();
+        // Ré-ajoute listeners à chaque update
+        const origUpdate = updateArena;
+        updateArena = function() {
+          origUpdate();
+          addListeners();
+        };
       } else {
         arenaLeft.textContent = 'Aucun personnage';
         arenaRight.textContent = 'Aucun personnage';
