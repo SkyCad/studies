@@ -12,9 +12,9 @@
     "name": "Lyria",
     "charClass": "wizard",
     "race": "elve",
-    "endurance": 50,
-    "power": 5,
-    "magicDefense": 15,
+    "endurance": 60,
+    "power": 0,
+    "magicDefense": 10,
     "magicPower": 30
   }
 ]

@@ -25,6 +25,28 @@
         </div>
     </div>
   </div>
-  <script type="module" src="character.js"></script>
+  <script type="module">
+    import { Character } from './character.js';
+    // Charge les personnages depuis data.json et affiche leur nom et PV
+    async function loadAndDisplayCharacters() {
+      try {
+        const response = await fetch('data.json');
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length >= 2) {
+            // On prend les deux premiers personnages
+            const char1 = new Character(data[0]);
+            const char2 = new Character(data[1]);
+            document.getElementById('arena-left').innerHTML = `<div><strong>${char1.name}</strong><br>PV : ${char1.endurance}</div>`;
+            document.getElementById('arena-right').innerHTML = `<div><strong>${char2.name}</strong><br>PV : ${char2.endurance}</div>`;
+          }
+        }
+      } catch (e) {
+        document.getElementById('arena-left').textContent = 'Erreur chargement';
+        document.getElementById('arena-right').textContent = 'Erreur chargement';
+      }
+    }
+    loadAndDisplayCharacters();
+  </script>
 </body>
 </html>
