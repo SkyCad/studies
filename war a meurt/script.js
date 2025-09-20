@@ -44,14 +44,17 @@ document.addEventListener("DOMContentLoaded", () => {
   if (arenaLeft && arenaRight) {
     loadCharacters().then(() => {
       if (characters.length >= 2) {
-        // On garde une copie locale pour manipuler les PV
-  // On doit bien initialiser maxEndurance pour chaque personnage
-  let charA = Object.assign(Object.create(Character.prototype), characters[0]);
-  let charB = Object.assign(Object.create(Character.prototype), characters[1]);
-  if (!charA.maxEndurance) charA.maxEndurance = characters[0].endurance;
-  if (!charB.maxEndurance) charB.maxEndurance = characters[1].endurance;
+    // On garde une copie locale pour manipuler les PV
+    // On doit bien initialiser maxEndurance pour chaque personnage
+    let charA = Object.assign(Object.create(Character.prototype), characters[0]);
+    let charB = Object.assign(Object.create(Character.prototype), characters[1]);
+    if (!charA.maxEndurance) charA.maxEndurance = characters[0].endurance;
+    if (!charB.maxEndurance) charB.maxEndurance = characters[1].endurance;
 
-        function updateArena() {
+    // 0 = joueur gauche, 1 = joueur droite
+    let currentTurn = 0;
+
+  function updateArena() {
           // Met à jour l'affichage des PV et barres de vie
           const maxA = charA.maxEndurance;
           const maxB = charB.maxEndurance;
@@ -87,12 +90,18 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
             </div>
           `;
-          // Désactive les boutons si mort
+          // Désactive les boutons si mort OU si ce n'est pas le tour du joueur
+          const leftBtns = arenaLeft.querySelectorAll('button');
+          const rightBtns = arenaRight.querySelectorAll('button');
           if (charA.endurance <= 0) {
-            arenaLeft.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            leftBtns.forEach(btn => btn.disabled = true);
+          } else {
+            leftBtns.forEach(btn => btn.disabled = (currentTurn !== 0));
           }
           if (charB.endurance <= 0) {
-            arenaRight.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            rightBtns.forEach(btn => btn.disabled = true);
+          } else {
+            rightBtns.forEach(btn => btn.disabled = (currentTurn !== 1));
           }
           // Affiche le message de victoire
           const victoryDiv = document.getElementById('victory-message');
@@ -114,28 +123,40 @@ document.addEventListener("DOMContentLoaded", () => {
         function addListeners() {
           // Joueur gauche attaque droite
           arenaLeft.querySelector('#left-choice-attack').onclick = () => {
+            if (currentTurn !== 0 || charA.endurance <= 0) return;
             charA.choice(charB, 'physique');
+            currentTurn = 1;
             updateArena();
           };
           arenaLeft.querySelector('#left-choice-magic').onclick = () => {
+            if (currentTurn !== 0 || charA.endurance <= 0) return;
             charA.choice(charB, 'magique');
+            currentTurn = 1;
             updateArena();
           };
           arenaLeft.querySelector('#left-choice-potion').onclick = () => {
+            if (currentTurn !== 0 || charA.endurance <= 0) return;
             charA.choice(charA, 'potion');
+            currentTurn = 1;
             updateArena();
           };
           // Joueur droite attaque gauche
           arenaRight.querySelector('#right-choice-attack').onclick = () => {
+            if (currentTurn !== 1 || charB.endurance <= 0) return;
             charB.choice(charA, 'physique');
+            currentTurn = 0;
             updateArena();
           };
           arenaRight.querySelector('#right-choice-magic').onclick = () => {
+            if (currentTurn !== 1 || charB.endurance <= 0) return;
             charB.choice(charA, 'magique');
+            currentTurn = 0;
             updateArena();
           };
           arenaRight.querySelector('#right-choice-potion').onclick = () => {
+            if (currentTurn !== 1 || charB.endurance <= 0) return;
             charB.choice(charB, 'potion');
+            currentTurn = 0;
             updateArena();
           };
         }
