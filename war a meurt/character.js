@@ -34,13 +34,12 @@ export class Character {
     }
   }
 
-  // Méthode pour attaquer un autre personnage
   /**
    * Action sur un autre personnage ou soi-même
    * @param {Character} target - la cible (ou soi-même pour potion)
    * @param {string} [type="physique"] - "physique", "magique" ou "potion"
    */
-  attack(target, type = "physique") {
+  choice(target, type = "physique") {
     if (!(target instanceof Character)) throw new Error('Target must be a Character');
     let degats = 0;
     if (type === "magique") {
