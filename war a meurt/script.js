@@ -44,8 +44,38 @@ document.addEventListener("DOMContentLoaded", () => {
   if (arenaLeft && arenaRight) {
     loadCharacters().then(() => {
       if (characters.length >= 2) {
-        arenaLeft.innerHTML = `<div><strong>${characters[0].name}</strong><br>PV : ${characters[0].endurance}</div>`;
-        arenaRight.innerHTML = `<div><strong>${characters[1].name}</strong><br>PV : ${characters[1].endurance}</div>`;
+        arenaLeft.innerHTML = `
+          <div>
+            <strong>${characters[0].name}</strong>
+            <div class="life-bar">
+              <span class="life-bar-text">PV : ${characters[0].endurance}</span>
+              <div class="life-bar-bg">
+                <div class="life-bar-fill" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="arena-actions">
+              <button class="btn" id="left-choice-attack" style="margin: 5px;">Attaque</button>
+              <button class="btn" id="left-choice-magic" style="margin: 5px;">Magie</button>
+              <button class="btn" id="left-choice-potion" style="margin: 5px;">Potion</button>
+            </div>
+          </div>
+        `;
+        arenaRight.innerHTML = `
+          <div>
+            <strong>${characters[1].name}</strong>
+            <div class="life-bar">
+              <span class="life-bar-text">PV : ${characters[1].endurance}</span>
+              <div class="life-bar-bg">
+                <div class="life-bar-fill" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="arena-actions" style="gap: 10px;">
+              <button class="btn" id="right-choice-attack" style="margin: 5px;">Attaque</button>
+              <button class="btn" id="right-choice-magic" style="margin: 5px;">Magie</button>
+              <button class="btn" id="right-choice-potion" style="margin: 5px;">Potion</button>
+            </div>
+          </div>
+        `;
       } else {
         arenaLeft.textContent = 'Aucun personnage';
         arenaRight.textContent = 'Aucun personnage';
