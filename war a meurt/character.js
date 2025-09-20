@@ -5,6 +5,7 @@ export class Character {
     this.charClass = charClass;
     this.race = race;
     this.endurance = endurance;
+    this.maxEndurance = endurance; // PV de base pour la régénération
     this.power = power;
     this.magicDefense = magicDefense;
     this.magicPower = magicPower;
@@ -34,14 +35,40 @@ export class Character {
   }
 
   // Méthode pour attaquer un autre personnage
-  attack(target) {
+  /**
+   * Action sur un autre personnage ou soi-même
+   * @param {Character} target - la cible (ou soi-même pour potion)
+   * @param {string} [type="physique"] - "physique", "magique" ou "potion"
+   */
+  attack(target, type = "physique") {
     if (!(target instanceof Character)) throw new Error('Target must be a Character');
-    target.endurance -= this.power;
-    if (target.endurance < 0) target.endurance = 0;
-    console.log(`${this.name} attaque ${target.name} et lui inflige ${this.power} dégâts !`);
-    console.log(`${target.name} a maintenant ${target.endurance} PV.`);
-    if (target.endurance === 0) {
-      console.log(`${this.name} a vaincu ${target.name} !`);
+    let degats = 0;
+    if (type === "magique") {
+      degats = this.magicPower - (target.magicDefense || 0);
+      if (degats < 0) degats = 0;
+      target.endurance -= degats;
+      if (target.endurance < 0) target.endurance = 0;
+      console.log(`${this.name} lance une attaque magique sur ${target.name} et lui inflige ${degats} dégâts !`);
+      console.log(`${target.name} a maintenant ${target.endurance} PV.`);
+      if (target.endurance === 0) {
+        console.log(`${this.name} a vaincu ${target.name} !`);
+      }
+    } else if (type === "potion") {
+      const avant = this.endurance;
+      this.endurance += 35;
+      if (this.endurance > this.maxEndurance) this.endurance = this.maxEndurance;
+      const regen = this.endurance - avant;
+      console.log(`${this.name} utilise une potion et régénère ${regen} PV !`);
+      console.log(`${this.name} a maintenant ${this.endurance} PV.`);
+    } else {
+      degats = this.power;
+      target.endurance -= degats;
+      if (target.endurance < 0) target.endurance = 0;
+      console.log(`${this.name} attaque ${target.name} et lui inflige ${degats} dégâts !`);
+      console.log(`${target.name} a maintenant ${target.endurance} PV.`);
+      if (target.endurance === 0) {
+        console.log(`${this.name} a vaincu ${target.name} !`);
+      }
     }
   }
 }
@@ -67,14 +94,22 @@ const hero2 = new Character({
   magicPower: 0
 });
 
-console.log(hero.displayInfo());
-console.log(hero2.displayInfo());
+const mage1 = new Character({
+  name: "Saruman",
+  charClass: "Wizard",
+  race: "Human",
+  endurance: 55,
+  power: 5,
+  magicDefense: 10,
+  magicPower: 30
+});
 
-// Exemple de combat : hero attaque hero2
-hero.attack(hero2);
-hero2.attack(hero);
-hero.attack(hero2);
-hero2.attack(hero);
-hero.attack(hero2);
-hero2.attack(hero);
-// Résultat attendu : Gandalf a maintenant 45 PV (65 - 20)
+const mage2 = new Character({
+  name: "Radagast",
+  charClass: "Wizard",
+  race: "Human",
+  endurance: 60,
+  power: 5,
+  magicDefense: 10,
+  magicPower: 25
+});
