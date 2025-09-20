@@ -94,6 +94,17 @@ document.addEventListener("DOMContentLoaded", () => {
           if (charB.endurance <= 0) {
             arenaRight.querySelectorAll('button').forEach(btn => btn.disabled = true);
           }
+          // Affiche le message de victoire
+          const victoryDiv = document.getElementById('victory-message');
+          if (charA.endurance <= 0 && charB.endurance > 0) {
+            victoryDiv.innerHTML = `<span class="victory">${charB.name} remporte le combat !</span>`;
+          } else if (charB.endurance <= 0 && charA.endurance > 0) {
+            victoryDiv.innerHTML = `<span class="victory">${charA.name} remporte le combat !</span>`;
+          } else if (charA.endurance <= 0 && charB.endurance <= 0) {
+            victoryDiv.innerHTML = `<span class="victory">Match nul !</span>`;
+          } else {
+            victoryDiv.innerHTML = '';
+          }
         }
 
         // Initial render

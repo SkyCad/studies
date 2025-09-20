@@ -1,3 +1,15 @@
+/* Style pour le message de victoire (titre secondaire) */
+.victory {
+  display: block;
+  text-align: center;
+  font-size: 2em;
+  margin: 1.5em auto 0.5em auto;
+  color: #4f8cff;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 20px #4f8cff88, 0 2px 8px #000a;
+  animation: fade-in 1.2s both;
+}
 /* --- Barre de vie pour l'arène --- */
 .life-bar {
   margin: 0.7em 0 1.2em 0;
