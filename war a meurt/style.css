@@ -1,3 +1,37 @@
+/* Styles pour l'arène de combat */
+.arena-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2em 0 1.5em 0;
+  padding: 0 10em;
+  gap: 1em;
+}
+.arena-slot {
+  flex: 1 1 40%;
+  min-width: 140px;
+  min-height: 140px;
+  max-width: 500px;
+  max-height: 500px;
+  aspect-ratio: 1/1;
+  margin: 0;
+  border: 2.5px solid #4f8cff;
+  border-radius: 12px;
+  background: #23272f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  color: #f1d325;
+  box-shadow: 0 2px 12px #4f8cff33;
+}
+.arena-choices {
+  min-height: 80px;
+  margin-top: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .character-card h3 {
   font-size: 1.5em;
   margin-bottom: 1rem;

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arène de Combat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="arena-container">
+    <div class="arena">
+      <h1>Arène de Combat</h1>
+      <button class="btn" style="margin: 1rem auto 1rem auto; display: none; display: block;"><a href="index.html" style="text-decoration: none; color: #fff;">Retour à la création de personnage</a></button>
+      <!-- Les personnages et le combat seront affichés ici plus tard -->
+        <div class="arena-row" style="margin-top: 8rem;">
+          <div class="arena-slot" id="arena-left">
+            <span>Zone Gauche (perso 1)</span>
+          </div>
+          <div class="arena-slot" id="arena-right">
+            <span>Zone Droite (perso 2)</span>
+          </div>
+        </div>
+        <div class="arena-choices" id="arena-choices">
+          <!-- Les choix d'action apparaîtront ici -->
+        </div>
+    </div>
+  </div>
+  <script type="module" src="character.js"></script>
+</body>
+</html>
