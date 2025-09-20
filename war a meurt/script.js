@@ -46,10 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (characters.length >= 2) {
     // On garde une copie locale pour manipuler les PV
     // On doit bien initialiser maxEndurance pour chaque personnage
-    let charA = Object.assign(Object.create(Character.prototype), characters[0]);
-    let charB = Object.assign(Object.create(Character.prototype), characters[1]);
-    if (!charA.maxEndurance) charA.maxEndurance = characters[0].endurance;
-    if (!charB.maxEndurance) charB.maxEndurance = characters[1].endurance;
+  // Correction : toujours initialiser potions à 5 si absent
+  let charA = Object.assign(Object.create(Character.prototype), characters[0]);
+  let charB = Object.assign(Object.create(Character.prototype), characters[1]);
+  if (!charA.maxEndurance) charA.maxEndurance = characters[0].endurance;
+  if (!charB.maxEndurance) charB.maxEndurance = characters[1].endurance;
+  if (typeof charA.potions !== 'number' || isNaN(charA.potions)) charA.potions = 5;
+  if (typeof charB.potions !== 'number' || isNaN(charB.potions)) charB.potions = 5;
 
     // 0 = joueur gauche, 1 = joueur droite
     let currentTurn = 0;
@@ -67,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   <div class="life-bar-fill" style="width: ${(charA.endurance / maxA) * 100}%"></div>
                 </div>
               </div>
+              <div class="potions-remaining">🧪 Potions : <span>${charA.potions}</span></div>
               <div class="arena-actions">
                 <button class="btn" id="left-choice-attack" style="margin: 5px;">Attaque</button>
                 <button class="btn" id="left-choice-magic" style="margin: 5px;">Magie</button>
@@ -83,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   <div class="life-bar-fill" style="width: ${(charB.endurance / maxB) * 100}%"></div>
                 </div>
               </div>
+              <div class="potions-remaining">🧪 Potions : <span>${charB.potions}</span></div>
               <div class="arena-actions" style="gap: 10px;">
                 <button class="btn" id="right-choice-attack" style="margin: 5px;">Attaque</button>
                 <button class="btn" id="right-choice-magic" style="margin: 5px;">Magie</button>
@@ -97,11 +102,17 @@ document.addEventListener("DOMContentLoaded", () => {
             leftBtns.forEach(btn => btn.disabled = true);
           } else {
             leftBtns.forEach(btn => btn.disabled = (currentTurn !== 0));
+            // Désactive le bouton potion si plus de potions
+            const potionBtn = arenaLeft.querySelector('#left-choice-potion');
+            if (potionBtn) potionBtn.disabled = (currentTurn !== 0 || charA.potions <= 0);
           }
           if (charB.endurance <= 0) {
             rightBtns.forEach(btn => btn.disabled = true);
           } else {
             rightBtns.forEach(btn => btn.disabled = (currentTurn !== 1));
+            // Désactive le bouton potion si plus de potions
+            const potionBtn = arenaRight.querySelector('#right-choice-potion');
+            if (potionBtn) potionBtn.disabled = (currentTurn !== 1 || charB.potions <= 0);
           }
           // Affiche le message de victoire
           const victoryDiv = document.getElementById('victory-message');

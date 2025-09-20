@@ -1,3 +1,16 @@
+/* Affichage du nombre de potions restantes */
+.potions-remaining {
+  color: #f1d325;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+  margin-top: -0.5em;
+  text-shadow: 0 1px 4px #000a;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+}
 /* Style pour le message de victoire (titre secondaire) */
 .victory {
   display: block;

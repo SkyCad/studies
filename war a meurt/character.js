@@ -1,6 +1,6 @@
 // Classe Character pour représenter un personnage
 export class Character {
-  constructor({ name, charClass, race, endurance, power, magicDefense, magicPower }) {
+  constructor({ name, charClass, race, endurance, power, magicDefense, magicPower, potions }) {
     this.name = name;
     this.charClass = charClass;
     this.race = race;
@@ -9,6 +9,7 @@ export class Character {
     this.power = power;
     this.magicDefense = magicDefense;
     this.magicPower = magicPower;
+    this.potions = typeof potions === 'number' ? potions : 5; // 5 potions max par défaut
   }
 
   // Méthode pour afficher les informations du personnage
@@ -53,6 +54,11 @@ export class Character {
         console.log(`${this.name} a vaincu ${target.name} !`);
       }
     } else if (type === "potion") {
+      if (this.potions <= 0) {
+        console.log(`${this.name} n'a plus de potions !`);
+        return;
+      }
+      this.potions--;
       const avant = this.endurance;
       // Correction : ne jamais dépasser maxEndurance
       let toHeal = 35;
@@ -62,7 +68,7 @@ export class Character {
       if (toHeal < 0) toHeal = 0;
       this.endurance += toHeal;
       const regen = this.endurance - avant;
-      console.log(`${this.name} utilise une potion et régénère ${regen} PV !`);
+      console.log(`${this.name} utilise une potion et régénère ${regen} PV ! (${this.potions} restantes)`);
       console.log(`${this.name} a maintenant ${this.endurance} PV.`);
     } else {
       degats = this.power;
