@@ -37,6 +37,24 @@ async function saveCharacters() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  // Détection arène : si les divs arena-left et arena-right existent, on affiche les persos ici
+  const arenaLeft = document.getElementById("arena-left");
+  const arenaRight = document.getElementById("arena-right");
+  if (arenaLeft && arenaRight) {
+    loadCharacters().then(() => {
+      if (characters.length >= 2) {
+        arenaLeft.innerHTML = `<div><strong>${characters[0].name}</strong><br>PV : ${characters[0].endurance}</div>`;
+        arenaRight.innerHTML = `<div><strong>${characters[1].name}</strong><br>PV : ${characters[1].endurance}</div>`;
+      } else {
+        arenaLeft.textContent = 'Aucun personnage';
+        arenaRight.textContent = 'Aucun personnage';
+      }
+    });
+    return; // Ne pas exécuter le reste du code (formulaire, etc.)
+  }
+
+  // --- Code page création personnage ---
   const form = document.querySelector("form");
   const results = document.getElementById("results");
   const nameSpan = document.getElementById("character-name");
