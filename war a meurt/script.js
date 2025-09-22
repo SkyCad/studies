@@ -433,7 +433,6 @@ document.addEventListener("DOMContentLoaded", () => {
       magicPower
     });
 
-
     // Enregistrement dans Airtable (module séparé)
     saveCharacterToAirtable({
       name,
