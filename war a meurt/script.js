@@ -2,7 +2,7 @@ import { Character } from './character.js';
 import { getLimits, checkStatsWithinLimits } from './limits.js';
 import { getAdvice } from './advice.js';
 import { nameExists, mergeCharacters } from './utils.js';
-import { saveCharacterToAirtable } from './airtable.js';
+import { saveCharacterToAirtable, getCharactersFromAirtable } from './airtable.js';
 
 let characters = [];
 
@@ -18,8 +18,9 @@ async function loadCharacters() {
   // } catch (e) {
   //   charsFromJson = [];
   // }
-  let charsFromJson = [];
-  // Charger les personnages du localStorage
+  // Récupérer les personnages depuis Airtable
+  let charsFromAirtable = await getCharactersFromAirtable();
+  // Charger les personnages du localStorage (optionnel, pour fallback ou fusion)
   let charsFromStorage = [];
   try {
     const stored = localStorage.getItem("characters");
@@ -30,8 +31,8 @@ async function loadCharacters() {
   } catch (e) {
     charsFromStorage = [];
   }
-  // Fusionner les deux listes (éviter doublons par nom)
-  characters = mergeCharacters(charsFromJson, charsFromStorage);
+  // Fusionner les deux listes (Airtable prioritaire, mais on garde les locaux non présents sur Airtable)
+  characters = mergeCharacters(charsFromAirtable, charsFromStorage);
 }
 
 async function saveCharacters() {
