@@ -2,21 +2,23 @@ import { Character } from './character.js';
 import { getLimits, checkStatsWithinLimits } from './limits.js';
 import { getAdvice } from './advice.js';
 import { nameExists, mergeCharacters } from './utils.js';
+import { saveCharacterToAirtable } from './airtable.js';
 
 let characters = [];
 
 async function loadCharacters() {
   // Charger les personnages depuis data.json via fetch
+  // let charsFromJson = [];
+  // try {
+  //   const response = await fetch('data.json');
+  //   if (response.ok) {
+  //     charsFromJson = await response.json();
+  //     if (!Array.isArray(charsFromJson)) charsFromJson = [];
+  //   }
+  // } catch (e) {
+  //   charsFromJson = [];
+  // }
   let charsFromJson = [];
-  try {
-    const response = await fetch('data.json');
-    if (response.ok) {
-      charsFromJson = await response.json();
-      if (!Array.isArray(charsFromJson)) charsFromJson = [];
-    }
-  } catch (e) {
-    charsFromJson = [];
-  }
   // Charger les personnages du localStorage
   let charsFromStorage = [];
   try {
@@ -430,8 +432,21 @@ document.addEventListener("DOMContentLoaded", () => {
       magicDefense,
       magicPower
     });
-    characters.push(character);
+
+
+    // Enregistrement dans Airtable (module séparé)
+    saveCharacterToAirtable({
+      name,
+      charClass,
+      race,
+      endurance,
+      power,
+      magicDefense,
+      magicPower
+    });
+
     // Save to data.json (simulé)
+    characters.push(character);
     saveCharacters();
     cleanBtn.style.display = "block";
     console.log("Personnage créé :", character);
