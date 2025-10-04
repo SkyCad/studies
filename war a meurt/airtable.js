@@ -1,5 +1,5 @@
 // Fonction pour récupérer tous les personnages depuis Airtable
-export async function getCharactersFromAirtable() {
+export async function getCharactersAirtable() {
   const AIRTABLE_API_KEY = 'patDxCg5BP6Ee40NF.60639ac10916e776188f5d8edd41ce300921ac458fbe1437e389ca91f5c32561';
   const AIRTABLE_BASE_ID = 'appnlHSNsEUFyVcTP';
   const AIRTABLE_TABLE = 'characters';
@@ -30,7 +30,7 @@ export async function getCharactersFromAirtable() {
   }
 }
 // Fonction pour enregistrer un personnage dans Airtable
-export async function saveCharacterToAirtable({ name, charClass, race, endurance, power, magicDefense, magicPower }) {
+export async function saveToAirtable({ name, charClass, race, endurance, power, magicDefense, magicPower }) {
   const AIRTABLE_API_KEY = 'patDxCg5BP6Ee40NF.60639ac10916e776188f5d8edd41ce300921ac458fbe1437e389ca91f5c32561';
   const AIRTABLE_BASE_ID = 'appnlHSNsEUFyVcTP';
   const AIRTABLE_TABLE = 'characters';

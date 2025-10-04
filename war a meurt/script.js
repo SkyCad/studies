@@ -2,7 +2,7 @@ import { Character } from './character.js';
 import { getLimits, checkStatsWithinLimits } from './limits.js';
 import { getAdvice } from './advice.js';
 import { nameExists, mergeCharacters } from './utils.js';
-import { saveCharacterToAirtable, getCharactersFromAirtable } from './airtable.js';
+import { saveToAirtable, getCharactersAirtable } from './airtable.js';
 
 let characters = [];
 
@@ -19,7 +19,7 @@ async function loadCharacters() {
   //   charsFromJson = [];
   // }
   // Récupérer les personnages depuis Airtable
-  let charsFromAirtable = await getCharactersFromAirtable();
+  let charsFromAirtable = await getCharactersAirtable();
   // Charger les personnages du localStorage (optionnel, pour fallback ou fusion)
   let charsFromStorage = [];
   try {
@@ -435,7 +435,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Enregistrement dans Airtable (module séparé)
-    saveCharacterToAirtable({
+    saveToAirtable({
       name,
       charClass,
       race,
