@@ -201,7 +201,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const powerLimit = document.getElementById("power-limit");
   const magicDefenseLimit = document.getElementById("magic-defense-limit");
   const magicPowerLimit = document.getElementById("magic-power-limit");
-  const cleanBtn = document.getElementById("clean-chara");
 
   // Affiche la Promise dans la console
   const promise = loadCharacters();
@@ -209,10 +208,8 @@ document.addEventListener("DOMContentLoaded", () => {
   promise.then(() => {
     console.log("joueurs chargés:", characters);
     if (characters.length > 0) {
-      cleanBtn.style.display = "block";
       renderCharacters();
     } else {
-      cleanBtn.style.display = "none";
       document.getElementById("character-display").style.display = "none";
     }
   });
@@ -257,11 +254,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (characters.length === 0) {
       charDisplay.innerHTML = "<p>Aucun personnage enregistré.</p>";
       charDisplay.style.display = "none";
-      cleanBtn.style.display = "none";
       return;
     }
     charDisplay.style.display = "block";
-    cleanBtn.style.display = "block";
     let html = '<h3>joueurs enregistrés</h3><ul class="list-group">';
     characters.forEach((char, idx) => {
       html += `<li class="list-group-item d-flex justify-content-between align-items-center" style="margin-bottom: 15px;">
@@ -380,17 +375,6 @@ document.addEventListener("DOMContentLoaded", () => {
     showAdvice(classAdvice, raceAdvice);
   });
 
-  cleanBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (
-      confirm("Cette action supprimera tous les personnages créés. Continuer ?")
-    ) {
-      characters = [];
-      saveCharacters();
-      cleanBtn.style.display = "none";
-      renderCharacters();
-    }
-  });
 
   // Form submission
   form.addEventListener("submit", (e) => {
@@ -450,7 +434,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Save to data.json (simulé)
     characters.push(character);
     saveCharacters();
-    cleanBtn.style.display = "block";
     console.log("Personnage créé :", character);
     console.log("Nombre actuel de personnages :", characters.length);
 
