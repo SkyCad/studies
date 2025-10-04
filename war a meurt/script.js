@@ -2,7 +2,7 @@ import { Character } from './character.js';
 import { getLimits, checkStatsWithinLimits } from './limits.js';
 import { getAdvice } from './advice.js';
 import { nameExists, mergeCharacters } from './utils.js';
-import { saveToAirtable, getCharactersAirtable } from './airtable.js';
+import { saveToAirtable, getCharactersAirtable, deleteAirtable } from './airtable.js';
 
 let characters = [];
 
@@ -309,7 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.appendChild(modal);
         modal.querySelector("#closeCardModal").onclick = () => modal.remove();
         // Ajoute le handler pour supprimer ce personnage
-        modal.querySelector("#deleteCharModalBtn").onclick = function() {
+        modal.querySelector("#deleteCharModalBtn").onclick = async function() {
           if (!confirm('Supprimer ce personnage ?')) return;
           // Supprime du localStorage
           let stored = localStorage.getItem('characters');
@@ -322,6 +322,8 @@ document.addEventListener("DOMContentLoaded", () => {
               }
             } catch(e) {}
           }
+          // Supprime sur Airtable
+          await deleteAirtable(char.name);
           // Supprime aussi du tableau characters en mémoire
           const idx = characters.findIndex(c => c.name === char.name);
           if (idx !== -1) {
