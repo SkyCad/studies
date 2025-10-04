@@ -362,6 +362,20 @@ document.addEventListener("DOMContentLoaded", () => {
           const newPower = parseInt(powerInput.value, 10) || 0;
           const newMagicDefense = parseInt(magicDefenseInput.value, 10) || 0;
           const newMagicPower = parseInt(magicPowerInput.value, 10) || 0;
+
+          // Vérifie les limites
+          const limits = getLimits(newClass, newRace);
+          if (newEndurance > limits.endurance || newPower > limits.power || newMagicDefense > limits.magicDefense || newMagicPower > limits.magicPower) {
+            alert('Une stat dépasse la limite autorisée pour cette classe/race.');
+            return;
+          }
+          // Vérifie le total
+          const totalStats = newEndurance + newPower + newMagicDefense + newMagicPower;
+          if (totalStats > 100) {
+            alert('Le total des stats ne peut pas dépasser 100.');
+            return;
+          }
+
           // Met à jour Airtable
           if (typeof updateAirtable === 'function') {
             await updateAirtable(char.name, {
