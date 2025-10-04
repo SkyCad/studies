@@ -7,17 +7,6 @@ import { saveToAirtable, getCharactersAirtable, deleteAirtable, updateAirtable }
 let characters = [];
 
 async function loadCharacters() {
-  // Charger les personnages depuis data.json via fetch
-  // let charsFromJson = [];
-  // try {
-  //   const response = await fetch('data.json');
-  //   if (response.ok) {
-  //     charsFromJson = await response.json();
-  //     if (!Array.isArray(charsFromJson)) charsFromJson = [];
-  //   }
-  // } catch (e) {
-  //   charsFromJson = [];
-  // }
   // Récupérer les personnages depuis Airtable uniquement
   characters = await getCharactersAirtable();
 }
