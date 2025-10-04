@@ -1,8 +1,8 @@
 import { Character } from './character.js';
 import { getLimits, checkStatsWithinLimits } from './limits.js';
 import { getAdvice } from './advice.js';
-import { nameExists, mergeCharacters } from './utils.js';
-import { saveToAirtable, getCharactersAirtable, deleteAirtable } from './airtable.js';
+import { nameExists } from './utils.js';
+import { saveToAirtable, getCharactersAirtable, deleteAirtable, updateAirtable } from './airtable.js';
 
 let characters = [];
 
@@ -18,26 +18,11 @@ async function loadCharacters() {
   // } catch (e) {
   //   charsFromJson = [];
   // }
-  // Récupérer les personnages depuis Airtable
-  let charsFromAirtable = await getCharactersAirtable();
-  // Charger les personnages du localStorage (optionnel, pour fallback ou fusion)
-  let charsFromStorage = [];
-  try {
-    const stored = localStorage.getItem("characters");
-    if (stored) {
-      charsFromStorage = JSON.parse(stored);
-      if (!Array.isArray(charsFromStorage)) charsFromStorage = [];
-    }
-  } catch (e) {
-    charsFromStorage = [];
-  }
-  // Fusionner les deux listes (Airtable prioritaire, mais on garde les locaux non présents sur Airtable)
-  characters = mergeCharacters(charsFromAirtable, charsFromStorage);
+  // Récupérer les personnages depuis Airtable uniquement
+  characters = await getCharactersAirtable();
 }
 
-async function saveCharacters() {
-  localStorage.setItem("characters", JSON.stringify(characters));
-}
+
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -298,6 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div><span class="stat-label">Défense magique :</span> <span id="modal-char-magic-defense"></span></div>
         <div><span class="stat-label">Puissance magique :</span> <span id="modal-char-magic-power"></span></div>
       </div>
+      <button id="modifyCharModalBtn" class="btn-modal btn-sm btn-warning" style="margin-top:1.5em; margin-right: 10px;">Modifier ce personnage</button>
       <button id="deleteCharModalBtn" class="btn-modal btn-sm btn-danger" style="margin-top:1.5em;">Supprimer ce personnage</button>
     </div>
   </div>`;
@@ -306,17 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Ajoute le handler pour supprimer ce personnage
         modal.querySelector("#deleteCharModalBtn").onclick = async function() {
           if (!confirm('Supprimer ce personnage ?')) return;
-          // Supprime du localStorage
-          let stored = localStorage.getItem('characters');
-          if (stored) {
-            try {
-              let arr = JSON.parse(stored);
-              if (Array.isArray(arr)) {
-                arr = arr.filter(c => c.name !== char.name);
-                localStorage.setItem('characters', JSON.stringify(arr));
-              }
-            } catch(e) {}
-          }
+          // ...rien à faire en localStorage...
           // Supprime sur Airtable
           await deleteAirtable(char.name);
           // Supprime aussi du tableau characters en mémoire
@@ -332,14 +308,80 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("modal-char-name").textContent = char.name;
       document.getElementById("modal-char-class").textContent = char.charClass;
       document.getElementById("modal-char-race").textContent = char.race;
-      document.getElementById("modal-char-endurance").textContent =
-        char.endurance;
+      document.getElementById("modal-char-endurance").textContent = char.endurance;
       document.getElementById("modal-char-power").textContent = char.power;
-      document.getElementById("modal-char-magic-defense").textContent =
-        char.magicDefense;
-      document.getElementById("modal-char-magic-power").textContent =
-        char.magicPower;
+      document.getElementById("modal-char-magic-defense").textContent = char.magicDefense;
+      document.getElementById("modal-char-magic-power").textContent = char.magicPower;
       modal.style.display = "block";
+
+      // Handler pour modifier le personnage
+      modal.querySelector("#modifyCharModalBtn").onclick = function() {
+        // Cache les autres boutons pendant la modification
+        const deleteBtn = modal.querySelector("#deleteCharModalBtn");
+        const modifyBtn = modal.querySelector("#modifyCharModalBtn");
+        const closeBtn = modal.querySelector("#closeCardModal");
+        if (deleteBtn) deleteBtn.style.display = "none";
+        if (modifyBtn) modifyBtn.style.display = "none";
+        if (closeBtn) closeBtn.style.display = "none";
+
+        // Remplace les spans par des inputs pour édition
+        function replaceSpanWithInput(id, value, type = 'text') {
+          const span = document.getElementById(id);
+          const input = document.createElement('input');
+          input.type = type;
+          input.value = value;
+          input.id = id + '-input';
+          input.className = 'form-control';
+          span.replaceWith(input);
+          return input;
+        }
+        const nameInput = replaceSpanWithInput('modal-char-name', char.name);
+  const classInput = replaceSpanWithInput('modal-char-class', char.charClass);
+  classInput.disabled = true;
+  const raceInput = replaceSpanWithInput('modal-char-race', char.race);
+  raceInput.disabled = true;
+        const enduranceInput = replaceSpanWithInput('modal-char-endurance', char.endurance, 'number');
+        const powerInput = replaceSpanWithInput('modal-char-power', char.power, 'number');
+        const magicDefenseInput = replaceSpanWithInput('modal-char-magic-defense', char.magicDefense, 'number');
+        const magicPowerInput = replaceSpanWithInput('modal-char-magic-power', char.magicPower, 'number');
+
+        // Ajoute un bouton pour valider la modification
+        let validateBtn = document.getElementById('validateCharEditBtn');
+        if (!validateBtn) {
+          validateBtn = document.createElement('button');
+          validateBtn.id = 'validateCharEditBtn';
+          validateBtn.className = 'btn-modal btn-sm btn-success';
+          validateBtn.textContent = 'Valider les modifications';
+          modal.querySelector('.character-card').appendChild(validateBtn);
+        }
+        validateBtn.style.display = "inline-block";
+        validateBtn.onclick = async function() {
+          // Récupère les nouvelles valeurs
+          const newName = nameInput.value.trim();
+          const newClass = char.charClass;
+          const newRace = char.race;
+          const newEndurance = parseInt(enduranceInput.value, 10) || 0;
+          const newPower = parseInt(powerInput.value, 10) || 0;
+          const newMagicDefense = parseInt(magicDefenseInput.value, 10) || 0;
+          const newMagicPower = parseInt(magicPowerInput.value, 10) || 0;
+          // Met à jour Airtable
+          if (typeof updateAirtable === 'function') {
+            await updateAirtable(char.name, {
+              nom: newName,
+              classe: newClass,
+              race: newRace,
+              endurance: newEndurance,
+              attaque: newPower,
+              magicDefence: newMagicDefense,
+              magicAttaque: newMagicPower
+            });
+          }
+          // Recharge les persos depuis Airtable pour éviter les doublons
+          await loadCharacters();
+          renderCharacters();
+          modal.remove();
+        };
+      };
     }
   }
 
@@ -377,7 +419,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // Form submission
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     console.log("Creation de personnage");
     const name = form.elements["name"].value.trim();
@@ -400,7 +442,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-
     // Vérifie que chaque stat ne dépasse pas sa limite et le total
     const limits = getLimits(charClass, race);
     const stats = { endurance, power, magicDefense, magicPower };
@@ -421,7 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Enregistrement dans Airtable (module séparé)
-    saveToAirtable({
+    await saveToAirtable({
       name,
       charClass,
       race,
@@ -431,9 +472,8 @@ document.addEventListener("DOMContentLoaded", () => {
       magicPower
     });
 
-    // Save to data.json (simulé)
-    characters.push(character);
-    saveCharacters();
+    // Recharge la liste depuis Airtable après création
+    await loadCharacters();
     console.log("Personnage créé :", character);
     console.log("Nombre actuel de personnages :", characters.length);
 

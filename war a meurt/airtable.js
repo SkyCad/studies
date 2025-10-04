@@ -1,3 +1,41 @@
+// Fonction pour modifier un personnage dans Airtable par son nom
+export async function updateAirtable(name, updates) {
+  const AIRTABLE_API_KEY = 'patDxCg5BP6Ee40NF.60639ac10916e776188f5d8edd41ce300921ac458fbe1437e389ca91f5c32561';
+  const AIRTABLE_BASE_ID = 'appnlHSNsEUFyVcTP';
+  const AIRTABLE_TABLE = 'characters';
+  // On doit d'abord récupérer l'id du record à modifier
+  try {
+    const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}?filterByFormula=nom='${name}'`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    const data = await response.json();
+    if (!data.records || data.records.length === 0) {
+      console.warn('Aucun personnage trouvé dans Airtable avec ce nom:', name);
+      return false;
+    }
+    // Modifie tous les records trouvés (si doublons)
+    for (const rec of data.records) {
+      const patchResp = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE}/${rec.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ fields: updates })
+      });
+      const patchData = await patchResp.json();
+      console.log('Airtable record updated:', patchData);
+    }
+    return true;
+  } catch (err) {
+    console.error('Airtable update error:', err);
+    return false;
+  }
+}
 // Fonction pour supprimer un personnage dans Airtable par son nom
 export async function deleteAirtable(name) {
   const AIRTABLE_API_KEY = 'patDxCg5BP6Ee40NF.60639ac10916e776188f5d8edd41ce300921ac458fbe1437e389ca91f5c32561';
