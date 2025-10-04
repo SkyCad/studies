@@ -20,13 +20,13 @@ export function checkStatsWithinLimits(stats, limits) {
 }
 // Fonction pure pour calculer les limites de stats selon la classe et la race
 export function getLimits(charClass, race) {
-  let limits = { endurance: 60, power: 20, magicDefense: 10, magicPower: 10 };
+  let limits = { endurance: 40, power: 20, magicDefense: 10, magicPower: 10 };
   if (charClass === "warrior") {
-    limits = { endurance: 80, power: 35, magicDefense: 10, magicPower: 5 };
+    limits = { endurance: 70, power: 40, magicDefense: 10, magicPower: 5 };
   } else if (charClass === "thief") {
-    limits = { endurance: 65, power: 25, magicDefense: 20, magicPower: 5 };
+    limits = { endurance: 60, power: 30, magicDefense: 20, magicPower: 8 };
   } else if (charClass === "wizard") {
-    limits = { endurance: 60, power: 8, magicDefense: 25, magicPower: 35 };
+    limits = { endurance: 40, power: 8, magicDefense: 25, magicPower: 30 };
   }
   // Modificateurs de race
   if (race === "dwarf") {

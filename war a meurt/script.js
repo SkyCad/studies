@@ -8,7 +8,8 @@ let characters = [];
 
 async function loadCharacters() {
   // Récupérer les personnages depuis Airtable uniquement
-  characters = await getCharactersAirtable();
+  const rawChars = await getCharactersAirtable();
+  characters = rawChars.map(data => new Character(data));
 }
 
 
@@ -36,15 +37,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateArena() {
           // Met à jour l'affichage des PV et barres de vie
-          const maxA = charA.maxEndurance;
-          const maxB = charB.maxEndurance;
+          const maxA = charA.life;
+          const maxB = charB.life;
           arenaLeft.innerHTML = `
             <div>
               <strong>${charA.name}</strong>
               <div class="life-bar">
-                <span class="life-bar-text">PV : ${charA.endurance}</span>
+                <span class="life-bar-text">PV : ${charA.life}</span>
                 <div class="life-bar-bg">
-                  <div class="life-bar-fill" style="width: ${(charA.endurance / maxA) * 100}%"></div>
+                  <div class="life-bar-fill" style="width: ${(charA.life / (charA.maxEndurance * 2)) * 100}%"></div>
                 </div>
               </div>
               <div class="potions-remaining">🧪 Potions : <span>${charA.potions}</span></div>
@@ -59,9 +60,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <div>
               <strong>${charB.name}</strong>
               <div class="life-bar">
-                <span class="life-bar-text">PV : ${charB.endurance}</span>
+                <span class="life-bar-text">PV : ${charB.life}</span>
                 <div class="life-bar-bg">
-                  <div class="life-bar-fill" style="width: ${(charB.endurance / maxB) * 100}%"></div>
+                  <div class="life-bar-fill" style="width: ${(charB.life / (charB.maxEndurance * 2)) * 100}%"></div>
                 </div>
               </div>
               <div class="potions-remaining">🧪 Potions : <span>${charB.potions}</span></div>
@@ -75,29 +76,27 @@ document.addEventListener("DOMContentLoaded", () => {
           // Désactive les boutons si mort OU si ce n'est pas le tour du joueur
           const leftBtns = arenaLeft.querySelectorAll('button');
           const rightBtns = arenaRight.querySelectorAll('button');
-          if (charA.endurance <= 0) {
+          if (charA.life <= 0) {
             leftBtns.forEach(btn => btn.disabled = true);
           } else {
             leftBtns.forEach(btn => btn.disabled = (currentTurn !== 0));
-            // Désactive le bouton potion si plus de potions
             const potionBtn = arenaLeft.querySelector('#left-choice-potion');
             if (potionBtn) potionBtn.disabled = (currentTurn !== 0 || charA.potions <= 0);
           }
-          if (charB.endurance <= 0) {
+          if (charB.life <= 0) {
             rightBtns.forEach(btn => btn.disabled = true);
           } else {
             rightBtns.forEach(btn => btn.disabled = (currentTurn !== 1));
-            // Désactive le bouton potion si plus de potions
             const potionBtn = arenaRight.querySelector('#right-choice-potion');
             if (potionBtn) potionBtn.disabled = (currentTurn !== 1 || charB.potions <= 0);
           }
           // Affiche le message de victoire
           const victoryDiv = document.getElementById('victory-message');
-          if (charA.endurance <= 0 && charB.endurance > 0) {
+          if (charA.life <= 0 && charB.life > 0) {
             victoryDiv.innerHTML = `<span class="victory">${charB.name} remporte le combat !</span>`;
-          } else if (charB.endurance <= 0 && charA.endurance > 0) {
+          } else if (charB.life <= 0 && charA.life > 0) {
             victoryDiv.innerHTML = `<span class="victory">${charA.name} remporte le combat !</span>`;
-          } else if (charA.endurance <= 0 && charB.endurance <= 0) {
+          } else if (charA.life <= 0 && charB.life <= 0) {
             victoryDiv.innerHTML = `<span class="victory">Match nul !</span>`;
           } else {
             victoryDiv.innerHTML = '';

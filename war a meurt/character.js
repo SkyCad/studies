@@ -4,8 +4,9 @@ export class Character {
     this.name = name;
     this.charClass = charClass;
     this.race = race;
-    this.endurance = endurance;
-    this.maxEndurance = endurance; // PV de base pour la régénération
+  this.endurance = endurance;
+  this.maxEndurance = endurance; // Stat de base
+  this.life = endurance * 2; // PV courant, proportionnel à l'endurance
     this.power = power;
     this.magicDefense = magicDefense;
     this.magicPower = magicPower;
@@ -46,11 +47,11 @@ export class Character {
     if (type === "magique") {
       degats = this.magicPower - (target.magicDefense || 0);
       if (degats < 0) degats = 0;
-      target.endurance -= degats;
-      if (target.endurance < 0) target.endurance = 0;
+      target.life -= degats;
+      if (target.life < 0) target.life = 0;
       console.log(`${this.name} lance une attaque magique sur ${target.name} et lui inflige ${degats} dégâts !`);
-      console.log(`${target.name} a maintenant ${target.endurance} PV.`);
-      if (target.endurance === 0) {
+      console.log(`${target.name} a maintenant ${target.life} PV.`);
+      if (target.life === 0) {
         console.log(`${this.name} a vaincu ${target.name} !`);
       }
     } else if (type === "potion") {
@@ -59,24 +60,26 @@ export class Character {
         return;
       }
       this.potions--;
-      const avant = this.endurance;
-      // Correction : ne jamais dépasser maxEndurance
-      let toHeal = 35;
-      if (this.endurance + toHeal > this.maxEndurance) {
-        toHeal = this.maxEndurance - this.endurance;
+      const avant = this.life;
+  // Correction : ne jamais dépasser PV max (endurance * 2)
+  const maxLife = this.maxEndurance * 2;
+  let toHeal = Math.floor(maxLife * 0.5); // Soigne 50% de la vie max
+      if (this.life + toHeal > maxLife) {
+        toHeal = maxLife - this.life;
       }
       if (toHeal < 0) toHeal = 0;
-      this.endurance += toHeal;
-      const regen = this.endurance - avant;
+      this.life += toHeal;
+      const regen = this.life - avant;
       console.log(`${this.name} utilise une potion et régénère ${regen} PV ! (${this.potions} restantes)`);
-      console.log(`${this.name} a maintenant ${this.endurance} PV.`);
+      console.log(`${this.name} a maintenant ${this.life} PV.`);
     } else {
-      degats = this.power;
-      target.endurance -= degats;
-      if (target.endurance < 0) target.endurance = 0;
+      degats = this.power - (target.magicDefense || 0);
+      if (degats < 0) degats = 0;
+      target.life -= degats;
+      if (target.life < 0) target.life = 0;
       console.log(`${this.name} attaque ${target.name} et lui inflige ${degats} dégâts !`);
-      console.log(`${target.name} a maintenant ${target.endurance} PV.`);
-      if (target.endurance === 0) {
+      console.log(`${target.name} a maintenant ${target.life} PV.`);
+      if (target.life === 0) {
         console.log(`${this.name} a vaincu ${target.name} !`);
       }
     }
