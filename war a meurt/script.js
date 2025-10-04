@@ -319,10 +319,8 @@ document.addEventListener("DOMContentLoaded", () => {
         // Cache les autres boutons pendant la modification
         const deleteBtn = modal.querySelector("#deleteCharModalBtn");
         const modifyBtn = modal.querySelector("#modifyCharModalBtn");
-        const closeBtn = modal.querySelector("#closeCardModal");
         if (deleteBtn) deleteBtn.style.display = "none";
         if (modifyBtn) modifyBtn.style.display = "none";
-        if (closeBtn) closeBtn.style.display = "none";
 
         // Remplace les spans par des inputs pour édition
         function replaceSpanWithInput(id, value, type = 'text') {
