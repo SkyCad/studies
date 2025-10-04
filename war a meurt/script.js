@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (characters.length >= 2) {
     // On garde une copie locale pour manipuler les PV
     // On doit bien initialiser maxEndurance pour chaque personnage
-  // Correction : toujours initialiser potions à 5 si absent
+    // Correction : toujours initialiser potions à 5 si absent
   let charA = Object.assign(Object.create(Character.prototype), characters[0]);
   let charB = Object.assign(Object.create(Character.prototype), characters[1]);
   if (!charA.maxEndurance) charA.maxEndurance = characters[0].endurance;
@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
         arenaRight.textContent = 'Aucun personnage';
       }
     });
-    return; // Ne pas exécuter le reste du code (formulaire, etc.)
+    return;
   }
 
   // --- Code page création personnage ---
