@@ -1,7 +1,7 @@
 import { Character } from './character.js';
 import { getLimits, checkStatsWithinLimits } from './limits.js';
 import { getAdvice } from './advice.js';
-import { nameExists } from './utils.js';
+import { nameExists, showCharacterCardModal } from './utils.js';
 import { saveToAirtable, getCharactersAirtable, deleteAirtable, updateAirtable } from './airtable.js';
 
 let characters = [];
@@ -246,144 +246,9 @@ document.addEventListener("DOMContentLoaded", () => {
       .forEach((btn) => {
         btn.addEventListener("click", function () {
           const idx = parseInt(this.getAttribute("data-idx"));
-          showCharacterCardModal(characters[idx]);
+          showCharacterCardModal(characters[idx], characters, renderCharacters, deleteAirtable, updateAirtable, getLimits, loadCharacters);
         });
       });
-
-    // Fonction pour afficher la fiche personnage dans une modale
-    function showCharacterCardModal(char) {
-      // Crée la modale si elle n'existe pas
-      let modal = document.getElementById("characterCardModal");
-      if (!modal) {
-        modal = document.createElement("div");
-        modal.id = "characterCardModal";
-          modal.innerHTML = `
-  <div class="modal-bg">
-    <div class="character-card" style="position:relative;">
-      <button id="closeCardModal" class="btn-modal btn-sm btn-secondary" style="position:absolute;top:10px;right:10px;">X</button>
-      <h3 id="modal-char-name"></h3>
-      <div>
-        <span class="badge bg-primary" id="modal-char-class"></span>
-        <span class="badge bg-success" id="modal-char-race"></span>
-      </div>
-      <div class="stats">
-        <div><span class="stat-label">Endurance :</span> <span id="modal-char-endurance"></span></div>
-        <div><span class="stat-label">Puissance :</span> <span id="modal-char-power"></span></div>
-        <div><span class="stat-label">Défense magique :</span> <span id="modal-char-magic-defense"></span></div>
-        <div><span class="stat-label">Puissance magique :</span> <span id="modal-char-magic-power"></span></div>
-      </div>
-      <button id="modifyCharModalBtn" class="btn-modal btn-sm btn-warning" style="margin-top:1.5em; margin-right: 10px;">Modifier ce personnage</button>
-      <button id="deleteCharModalBtn" class="btn-modal btn-sm btn-danger" style="margin-top:1.5em;">Supprimer ce personnage</button>
-    </div>
-  </div>`;
-        document.body.appendChild(modal);
-        modal.querySelector("#closeCardModal").onclick = () => modal.remove();
-        // Ajoute le handler pour supprimer ce personnage
-        modal.querySelector("#deleteCharModalBtn").onclick = async function() {
-          if (!confirm('Supprimer ce personnage ?')) return;
-          // ...rien à faire en localStorage...
-          // Supprime sur Airtable
-          await deleteAirtable(char.name);
-          // Supprime aussi du tableau characters en mémoire
-          const idx = characters.findIndex(c => c.name === char.name);
-          if (idx !== -1) {
-            characters.splice(idx, 1);
-          }
-          renderCharacters();
-          modal.remove();
-        };
-      }
-      // Remplit la fiche avec les infos du personnage
-      document.getElementById("modal-char-name").textContent = char.name;
-      document.getElementById("modal-char-class").textContent = char.charClass;
-      document.getElementById("modal-char-race").textContent = char.race;
-      document.getElementById("modal-char-endurance").textContent = char.endurance;
-      document.getElementById("modal-char-power").textContent = char.power;
-      document.getElementById("modal-char-magic-defense").textContent = char.magicDefense;
-      document.getElementById("modal-char-magic-power").textContent = char.magicPower;
-      modal.style.display = "block";
-
-      // Handler pour modifier le personnage
-      modal.querySelector("#modifyCharModalBtn").onclick = function() {
-        // Cache les autres boutons pendant la modification
-        const deleteBtn = modal.querySelector("#deleteCharModalBtn");
-        const modifyBtn = modal.querySelector("#modifyCharModalBtn");
-        if (deleteBtn) deleteBtn.style.display = "none";
-        if (modifyBtn) modifyBtn.style.display = "none";
-
-        // Remplace les spans par des inputs pour édition
-        function replaceSpanWithInput(id, value, type = 'text') {
-          const span = document.getElementById(id);
-          const input = document.createElement('input');
-          input.type = type;
-          input.value = value;
-          input.id = id + '-input';
-          input.className = 'form-control';
-          span.replaceWith(input);
-          return input;
-        }
-        const nameInput = replaceSpanWithInput('modal-char-name', char.name);
-  const classInput = replaceSpanWithInput('modal-char-class', char.charClass);
-  classInput.disabled = true;
-  const raceInput = replaceSpanWithInput('modal-char-race', char.race);
-  raceInput.disabled = true;
-        const enduranceInput = replaceSpanWithInput('modal-char-endurance', char.endurance, 'number');
-        const powerInput = replaceSpanWithInput('modal-char-power', char.power, 'number');
-        const magicDefenseInput = replaceSpanWithInput('modal-char-magic-defense', char.magicDefense, 'number');
-        const magicPowerInput = replaceSpanWithInput('modal-char-magic-power', char.magicPower, 'number');
-
-        // Ajoute un bouton pour valider la modification
-        let validateBtn = document.getElementById('validateCharEditBtn');
-        if (!validateBtn) {
-          validateBtn = document.createElement('button');
-          validateBtn.id = 'validateCharEditBtn';
-          validateBtn.className = 'btn-modal btn-sm btn-success';
-          validateBtn.textContent = 'Valider les modifications';
-          modal.querySelector('.character-card').appendChild(validateBtn);
-        }
-        validateBtn.style.display = "inline-block";
-        validateBtn.onclick = async function() {
-          // Récupère les nouvelles valeurs
-          const newName = nameInput.value.trim();
-          const newClass = char.charClass;
-          const newRace = char.race;
-          const newEndurance = parseInt(enduranceInput.value, 10) || 0;
-          const newPower = parseInt(powerInput.value, 10) || 0;
-          const newMagicDefense = parseInt(magicDefenseInput.value, 10) || 0;
-          const newMagicPower = parseInt(magicPowerInput.value, 10) || 0;
-
-          // Vérifie les limites
-          const limits = getLimits(newClass, newRace);
-          if (newEndurance > limits.endurance || newPower > limits.power || newMagicDefense > limits.magicDefense || newMagicPower > limits.magicPower) {
-            alert('Une stat dépasse la limite autorisée pour cette classe/race.');
-            return;
-          }
-          // Vérifie le total
-          const totalStats = newEndurance + newPower + newMagicDefense + newMagicPower;
-          if (totalStats > 100) {
-            alert('Le total des stats ne peut pas dépasser 100.');
-            return;
-          }
-
-          // Met à jour Airtable
-          if (typeof updateAirtable === 'function') {
-            await updateAirtable(char.name, {
-              nom: newName,
-              classe: newClass,
-              race: newRace,
-              endurance: newEndurance,
-              attaque: newPower,
-              magicDefence: newMagicDefense,
-              magicAttaque: newMagicPower
-            });
-          }
-          // Recharge les persos depuis Airtable pour éviter les doublons
-          await loadCharacters();
-          renderCharacters();
-          modal.remove();
-        };
-      };
-    }
   }
 
   // --- Event listeners/form ---
